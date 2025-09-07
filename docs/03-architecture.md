@@ -23,11 +23,11 @@ Sơ đồ dưới đây minh họa kiến trúc tổng thể của hệ thống:
 ```mermaid
 graph TD
     subgraph "Thiết Bị IoT"
-        ESP[<i class='fa fa-microchip'></i> Cảm biến ESP]
+        ESP[<i class='fa fa-envelope'></i> Cảm biến ESP]
     end
 
     subgraph "Hạ Tầng Backend [Local + ngrok]"
-        Backend[<i class='fa'></i> Spring Boot API]
+        Backend[<i class='fa fa-envelope'></i> Spring Boot API]
         DB[<i class='fa fa-database'></i> MariaDB]
         EmailService[<i class='fa fa-envelope'></i> Dịch vụ Email]
         
@@ -36,11 +36,11 @@ graph TD
     end
 
     subgraph "Hạ Tầng Frontend [Vercel / Netlify]"
-        WebApp[<i class='fab fa-react'></i> Next.js App]
+        WebApp[<i class='fab  fa-envelope'></i> Next.js App]
     end
 
     subgraph "Người Dùng"
-        Admin[<i class='fa fa-user'></i> Quản trị viên]
+        Admin[<i class='fa  fa-envelope'></i> Quản trị viên]
     end
 
     %% Luồng dữ liệu và tương tác
