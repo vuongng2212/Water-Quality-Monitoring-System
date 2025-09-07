@@ -27,7 +27,7 @@ graph TD
     end
 
     subgraph "Hạ Tầng Backend [Local + ngrok]"
-        Backend[<i class='fa fa-server'></i> Spring Boot API]
+        Backend[<i class='fa'></i> Spring Boot API]
         DB[<i class='fa fa-database'></i> MariaDB]
         EmailService[<i class='fa fa-envelope'></i> Dịch vụ Email]
         
