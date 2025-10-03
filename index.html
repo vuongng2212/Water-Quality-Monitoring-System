@@ -11,45 +11,36 @@
         body {
             box-sizing: border-box;
         }
-        
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        
         .metric-card {
             transition: transform 0.2s ease-in-out;
         }
-        
         .metric-card:hover {
             transform: translateY(-2px);
         }
-        
         .alert-pulse {
             animation: pulse 2s infinite;
         }
-        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
         .toggle-switch {
             position: relative;
             display: inline-block;
             width: 60px;
             height: 34px;
         }
-        
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
         .slider {
             position: absolute;
             cursor: pointer;
@@ -61,7 +52,6 @@
             transition: .4s;
             border-radius: 34px;
         }
-        
         .slider:before {
             position: absolute;
             content: "";
@@ -73,11 +63,9 @@
             transition: .4s;
             border-radius: 50%;
         }
-        
         input:checked + .slider {
             background-color: #10b981;
         }
-        
         input:checked + .slider:before {
             transform: translateX(26px);
         }
@@ -94,14 +82,14 @@
                     </div>
                     <div class="hidden md:block ml-10">
                         <div class="flex items-baseline space-x-4">
-                            <a href="#dashboard" class="px-3 py-2 rounded-md text-sm font-medium bg-white bg-opacity-20">Dashboard</a>
-                            <a href="#history" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white hover:bg-opacity-20">Lịch sử</a>
-                            <a href="#users" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-white hover:bg-opacity-20">Người dùng</a>
+                            <a href="#dashboard" class="nav-link px-3 py-2 rounded-md text-sm font-medium bg-white bg-opacity-20">Dashboard</a>
+                            <a href="#history" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white hover:bg-opacity-20">Lịch sử</a>
+                            <a href="#users" id="nav-users" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white hover:bg-opacity-20">Người dùng</a>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <span class="mr-4">👤 Admin</span>
+                    <span class="mr-4" id="user-info">👤 Admin (Nhà máy Alpha)</span>
                     <button class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-sm font-medium">Đăng xuất</button>
                 </div>
             </div>
@@ -110,6 +98,23 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- View Controls -->
+        <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg card-shadow items-center">
+            <div class="flex items-center space-x-2">
+                <label for="roleSwitcher" class="text-sm font-medium text-gray-700">Xem với vai trò:</label>
+                <select id="roleSwitcher" class="border border-gray-300 rounded-md px-3 py-2">
+                    <option value="ADMIN" selected>Admin</option>
+                    <option value="EMPLOYEE">Employee</option>
+                </select>
+            </div>
+            <div class="flex items-center space-x-2">
+                <label for="deviceSwitcher" class="text-sm font-medium text-gray-700">Thiết bị:</label>
+                <select id="deviceSwitcher" class="border border-gray-300 rounded-md px-3 py-2">
+                    <!-- Options will be populated by JS -->
+                </select>
+            </div>
+        </div>
+
         <!-- Alert Banner -->
         <div id="alertBanner" class="hidden mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded alert-pulse">
             <div class="flex items-center">
@@ -120,14 +125,13 @@
         </div>
 
         <!-- Dashboard Section -->
-        <div id="dashboard">
+        <div id="dashboard" class="page-section">
+            <h2 id="dashboard-title" class="text-2xl font-bold text-gray-800 mb-4">Dashboard Tổng quan</h2>
             <!-- Real-time Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="metric-card bg-white p-6 rounded-lg card-shadow">
                     <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                            🧪
-                        </div>
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">🧪</div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">pH</p>
                             <p id="phValue" class="text-2xl font-semibold text-gray-900">7.2</p>
@@ -135,12 +139,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="metric-card bg-white p-6 rounded-lg card-shadow">
                     <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-red-100 text-red-600">
-                            🌡️
-                        </div>
+                        <div class="p-3 rounded-full bg-red-100 text-red-600">🌡️</div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Nhiệt độ</p>
                             <p id="tempValue" class="text-2xl font-semibold text-gray-900">25.3°C</p>
@@ -148,12 +149,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="metric-card bg-white p-6 rounded-lg card-shadow">
                     <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                            💧
-                        </div>
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">💧</div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Độ đục</p>
                             <p id="turbidityValue" class="text-2xl font-semibold text-gray-900">2.1 NTU</p>
@@ -161,12 +159,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="metric-card bg-white p-6 rounded-lg card-shadow">
                     <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-green-100 text-green-600">
-                            ⚡
-                        </div>
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">⚡</div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-600">Độ dẫn điện</p>
                             <p id="conductivityValue" class="text-2xl font-semibold text-gray-900">450 µS/cm</p>
@@ -178,16 +173,12 @@
 
             <!-- Charts and Controls -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <!-- Chart -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-lg card-shadow">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu đồ thời gian thực</h3>
                     <canvas id="realtimeChart" width="400" height="200"></canvas>
                 </div>
-
-                <!-- Controls -->
                 <div class="bg-white p-6 rounded-lg card-shadow">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Điều khiển thiết bị</h3>
-                    
                     <div class="space-y-6">
                         <div>
                             <label class="flex items-center justify-between">
@@ -199,7 +190,6 @@
                             </label>
                             <p id="valveStatus" class="text-xs text-gray-500 mt-1">Trạng thái: Đóng</p>
                         </div>
-
                         <div>
                             <label class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-700">Thu thập dữ liệu</span>
@@ -210,14 +200,9 @@
                             </label>
                             <p id="dataStatus" class="text-xs text-gray-500 mt-1">Trạng thái: Đang hoạt động</p>
                         </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Khoảng thời gian gửi dữ liệu (giây)
-                            </label>
-                            <input type="range" id="intervalSlider" min="5" max="60" value="15" 
-                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                   onchange="updateInterval()">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Khoảng thời gian gửi dữ liệu (giây)</label>
+                            <input type="range" id="intervalSlider" min="5" max="60" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" onchange="updateInterval()">
                             <div class="flex justify-between text-xs text-gray-500 mt-1">
                                 <span>5s</span>
                                 <span id="intervalValue">15s</span>
@@ -244,48 +229,36 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độ dẫn điện (µS/cm)</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Data will be populated by JavaScript -->
-                        </tbody>
+                        <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- History Section (Hidden by default) -->
-        <div id="history" class="hidden">
+        <!-- History Section -->
+        <div id="history" class="page-section hidden">
             <div class="bg-white rounded-lg card-shadow p-6">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Lịch sử dữ liệu</h2>
-                
                 <div class="flex flex-wrap gap-4 mb-6">
                     <select class="border border-gray-300 rounded-md px-3 py-2">
                         <option>Hôm nay</option>
                         <option>7 ngày qua</option>
                         <option>30 ngày qua</option>
-                        <option>Tùy chỉnh</option>
                     </select>
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                        📊 Xem biểu đồ
-                    </button>
-                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">
-                        📥 Xuất CSV
-                    </button>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">📊 Xem biểu đồ</button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">📥 Xuất CSV</button>
                 </div>
-                
                 <canvas id="historyChart" width="400" height="200"></canvas>
             </div>
         </div>
 
-        <!-- User Management Section (Hidden by default) -->
-        <div id="users" class="hidden">
+        <!-- User Management Section -->
+        <div id="users" class="page-section hidden">
             <div class="bg-white rounded-lg card-shadow p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900">Quản lý người dùng</h2>
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
-                        ➕ Thêm người dùng
-                    </button>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">➕ Thêm người dùng</button>
                 </div>
-                
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -298,9 +271,18 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">admin</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">admin@company.com</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">admin_alpha</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">admin@alpha.com</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Admin</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3">Sửa</button>
+                                    <button class="text-red-600 hover:text-red-900">Xóa</button>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">employee_1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">emp1@alpha.com</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Employee</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button class="text-blue-600 hover:text-blue-900 mr-3">Sửa</button>
                                     <button class="text-red-600 hover:text-red-900">Xóa</button>
@@ -314,156 +296,231 @@
     </div>
 
     <script>
-        // Sample data for demonstration
-        let sensorData = {
-            ph: [],
-            temperature: [],
-            turbidity: [],
-            conductivity: [],
-            timestamps: []
+        // --- APPLICATION STATE & MOCK DATA ---
+        const appState = {
+            role: 'ADMIN', // 'ADMIN' or 'EMPLOYEE'
+            device: 'all', // 'all', 'device-1', 'device-2', etc.
+            factoryName: 'Alpha',
+            devices: {
+                'device-1': { name: 'Hồ chứa số 1', assigned: true },
+                'device-2': { name: 'Khu xử lý nước thải', assigned: false },
+                'device-3': { name: 'Đầu ra thành phẩm', assigned: true },
+            }
         };
 
-        // Initialize charts
-        let realtimeChart;
-        let historyChart;
+        let sensorData = {}; // Will be populated for each device
+        let realtimeChart, historyChart, dataInterval;
 
-        // Initialize the application
+        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
             initializeCharts();
-            generateSampleData();
-            updateDataTable();
+            setupEventListeners();
+            updateViewForRole();
             startDataPolling();
         });
 
         function initializeCharts() {
-            // Real-time chart
             const ctx1 = document.getElementById('realtimeChart').getContext('2d');
             realtimeChart = new Chart(ctx1, {
                 type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'pH',
-                            data: [],
-                            borderColor: 'rgb(59, 130, 246)',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.1
-                        },
-                        {
-                            label: 'Nhiệt độ (°C)',
-                            data: [],
-                            borderColor: 'rgb(239, 68, 68)',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
-                }
+                data: { labels: [], datasets: [] }, // Datasets will be added dynamically
+                options: { responsive: true, scales: { y: { beginAtZero: false } } }
             });
 
-            // History chart
             const ctx2 = document.getElementById('historyChart').getContext('2d');
             historyChart = new Chart(ctx2, {
                 type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'pH',
-                            data: [],
-                            borderColor: 'rgb(59, 130, 246)',
-                            tension: 0.1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true
-                }
+                data: { labels: [], datasets: [{ label: 'pH', data: [], borderColor: 'rgb(59, 130, 246)', tension: 0.1 }] },
+                options: { responsive: true }
+            });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('roleSwitcher').addEventListener('change', (e) => {
+                appState.role = e.target.value;
+                updateViewForRole();
+            });
+            document.getElementById('deviceSwitcher').addEventListener('change', (e) => {
+                appState.device = e.target.value;
+                refreshDashboard();
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', handleNavigation);
             });
         }
 
-        function generateSampleData() {
-            const now = new Date();
-            for (let i = 19; i >= 0; i--) {
-                const timestamp = new Date(now.getTime() - i * 60000);
-                sensorData.timestamps.push(timestamp.toLocaleTimeString());
-                sensorData.ph.push((Math.random() * 2 + 6.5).toFixed(1));
-                sensorData.temperature.push((Math.random() * 8 + 22).toFixed(1));
-                sensorData.turbidity.push((Math.random() * 3 + 1).toFixed(1));
-                sensorData.conductivity.push(Math.floor(Math.random() * 200 + 400));
+        // --- VIEW & UI LOGIC ---
+
+        function updateViewForRole() {
+            const { role } = appState;
+            const navUsers = document.getElementById('nav-users');
+            
+            document.getElementById('user-info').textContent = `👤 ${role === 'ADMIN' ? 'Admin' : 'Employee'} (Nhà máy ${appState.factoryName})`;
+
+            if (role === 'ADMIN') {
+                navUsers.style.display = 'block';
+                populateDeviceSwitcher(Object.keys(appState.devices));
+            } else { // EMPLOYEE
+                navUsers.style.display = 'none';
+                const assignedDevices = Object.keys(appState.devices).filter(id => appState.devices[id].assigned);
+                populateDeviceSwitcher(assignedDevices);
+                // If current page is 'users', switch to 'dashboard'
+                if (document.querySelector('.nav-link.bg-opacity-20').getAttribute('href') === '#users') {
+                    showPage('dashboard');
+                }
             }
-            updateCharts();
+            // Set default device selection and refresh
+            appState.device = document.getElementById('deviceSwitcher').value;
+            refreshDashboard();
+        }
+        
+        function populateDeviceSwitcher(deviceIds) {
+            const switcher = document.getElementById('deviceSwitcher');
+            switcher.innerHTML = '';
+            
+            if (appState.role === 'ADMIN') {
+                const allOption = new Option('Tất cả thiết bị', 'all');
+                switcher.add(allOption);
+            }
+
+            deviceIds.forEach(id => {
+                const option = new Option(appState.devices[id].name, id);
+                switcher.add(option);
+            });
         }
 
-        function updateCharts() {
-            realtimeChart.data.labels = sensorData.timestamps.slice(-10);
-            realtimeChart.data.datasets[0].data = sensorData.ph.slice(-10);
-            realtimeChart.data.datasets[1].data = sensorData.temperature.slice(-10);
+        function refreshDashboard() {
+            const { device } = appState;
+            const title = document.getElementById('dashboard-title');
+            if (device === 'all') {
+                title.textContent = 'Dashboard Tổng quan';
+            } else {
+                title.textContent = `Dashboard: ${appState.devices[device].name}`;
+            }
+            // Regenerate data for the new view
+            generateSampleData(true);
+            updateAllUIComponents();
+        }
+
+        function handleNavigation(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            showPage(targetId);
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(a => {
+                a.classList.remove('bg-white', 'bg-opacity-20');
+                if (a.getAttribute('href') === `#${pageId}`) {
+                    a.classList.add('bg-white', 'bg-opacity-20');
+                }
+            });
+        }
+        
+        // --- DATA SIMULATION ---
+
+        function generateSampleData(isNew = false, deviceId = 'all') {
+            const deviceKeys = deviceId === 'all' ? Object.keys(appState.devices) : [deviceId];
+            
+            deviceKeys.forEach(key => {
+                if (isNew || !sensorData[key]) {
+                     sensorData[key] = { ph: [], temperature: [], turbidity: [], conductivity: [], timestamps: [] };
+                     const now = new Date();
+                     for (let i = 19; i >= 0; i--) {
+                        const timestamp = new Date(now.getTime() - i * 15000); // 15s interval
+                        addMockRecord(sensorData[key], timestamp);
+                    }
+                }
+            });
+        }
+        
+        function addMockRecord(data, timestamp) {
+            data.timestamps.push(timestamp.toLocaleTimeString('vi-VN'));
+            data.ph.push((Math.random() * 1.5 + 6.5).toFixed(1));
+            data.temperature.push((Math.random() * 5 + 23).toFixed(1));
+            data.turbidity.push((Math.random() * 3 + 1).toFixed(1));
+            data.conductivity.push(Math.floor(Math.random() * 200 + 400));
+
+            // Keep only last 50 data points
+            if (data.timestamps.length > 50) {
+                Object.keys(data).forEach(k => data[k].shift());
+            }
+        }
+        
+        function startDataPolling() {
+            if (dataInterval) clearInterval(dataInterval);
+            dataInterval = setInterval(() => {
+                const deviceKeys = Object.keys(sensorData);
+                deviceKeys.forEach(key => addMockRecord(sensorData[key], new Date()));
+                updateAllUIComponents();
+            }, 15000);
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+
+        function updateAllUIComponents() {
+            const data = getDisplayData();
+            if (!data) return;
+
+            const lastIndex = data.ph.length - 1;
+            document.getElementById('phValue').textContent = data.ph[lastIndex];
+            document.getElementById('tempValue').textContent = data.temperature[lastIndex] + '°C';
+            document.getElementById('turbidityValue').textContent = data.turbidity[lastIndex] + ' NTU';
+            document.getElementById('conductivityValue').textContent = data.conductivity[lastIndex] + ' µS/cm';
+            
+            updateCharts(data);
+            updateDataTable(data);
+            checkForAlerts(data.ph[lastIndex], data.temperature[lastIndex]);
+        }
+        
+        function getDisplayData() {
+            const { device } = appState;
+            if (device === 'all') {
+                // For 'all', we can just show data from the first device for simplicity in this demo
+                const firstDeviceKey = Object.keys(sensorData)[0];
+                return sensorData[firstDeviceKey];
+            }
+            return sensorData[device];
+        }
+
+        function updateCharts(data) {
+            const labels = data.timestamps.slice(-10);
+            
+            // Real-time chart for selected device
+            realtimeChart.data.labels = labels;
+            realtimeChart.data.datasets = [
+                { label: 'pH', data: data.ph.slice(-10), borderColor: 'rgb(59, 130, 246)', tension: 0.1 },
+                { label: 'Nhiệt độ (°C)', data: data.temperature.slice(-10), borderColor: 'rgb(239, 68, 68)', tension: 0.1 }
+            ];
             realtimeChart.update();
         }
 
-        function updateDataTable() {
+        function updateDataTable(data) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
             
-            for (let i = sensorData.timestamps.length - 1; i >= Math.max(0, sensorData.timestamps.length - 5); i--) {
+            for (let i = data.timestamps.length - 1; i >= Math.max(0, data.timestamps.length - 5); i--) {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sensorData.timestamps[i]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sensorData.ph[i]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sensorData.temperature[i]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sensorData.turbidity[i]}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sensorData.conductivity[i]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.timestamps[i]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.ph[i]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.temperature[i]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.turbidity[i]}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.conductivity[i]}</td>
                 `;
             }
         }
 
-        function startDataPolling() {
-            setInterval(() => {
-                // Simulate new data
-                const now = new Date();
-                sensorData.timestamps.push(now.toLocaleTimeString());
-                
-                const newPh = (Math.random() * 2 + 6.5).toFixed(1);
-                const newTemp = (Math.random() * 8 + 22).toFixed(1);
-                
-                sensorData.ph.push(newPh);
-                sensorData.temperature.push(newTemp);
-                sensorData.turbidity.push((Math.random() * 3 + 1).toFixed(1));
-                sensorData.conductivity.push(Math.floor(Math.random() * 200 + 400));
-
-                // Update UI
-                document.getElementById('phValue').textContent = newPh;
-                document.getElementById('tempValue').textContent = newTemp + '°C';
-                document.getElementById('turbidityValue').textContent = sensorData.turbidity[sensorData.turbidity.length - 1] + ' NTU';
-                document.getElementById('conductivityValue').textContent = sensorData.conductivity[sensorData.conductivity.length - 1] + ' µS/cm';
-
-                // Check for alerts
-                if (parseFloat(newPh) < 6.0 || parseFloat(newPh) > 9.0) {
-                    showAlert(`pH vượt ngưỡng an toàn: ${newPh}`);
-                }
-                if (parseFloat(newTemp) < 20.0 || parseFloat(newTemp) > 30.0) {
-                    showAlert(`Nhiệt độ vượt ngưỡng an toàn: ${newTemp}°C`);
-                }
-
-                updateCharts();
-                updateDataTable();
-
-                // Keep only last 50 data points
-                if (sensorData.timestamps.length > 50) {
-                    Object.keys(sensorData).forEach(key => {
-                        sensorData[key].shift();
-                    });
-                }
-            }, 15000); // 15 seconds
+        function checkForAlerts(ph, temp) {
+            // A simple alert logic
+            if (parseFloat(ph) < 6.0 || parseFloat(ph) > 9.0) {
+                showAlert(`Cảnh báo: pH vượt ngưỡng an toàn: ${ph}`);
+            } else if (parseFloat(temp) < 20.0 || parseFloat(temp) > 30.0) {
+                showAlert(`Cảnh báo: Nhiệt độ vượt ngưỡng an toàn: ${temp}°C`);
+            }
         }
 
         function showAlert(message) {
@@ -494,28 +551,7 @@
             const value = document.getElementById('intervalValue');
             value.textContent = slider.value + 's';
         }
-
-        // Navigation
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = this.getAttribute('href').substring(1);
-                
-                // Hide all sections
-                document.querySelectorAll('#dashboard, #history, #users').forEach(section => {
-                    section.classList.add('hidden');
-                });
-                
-                // Show target section
-                document.getElementById(target).classList.remove('hidden');
-                
-                // Update active nav
-                document.querySelectorAll('nav a').forEach(a => {
-                    a.classList.remove('bg-white', 'bg-opacity-20');
-                });
-                this.classList.add('bg-white', 'bg-opacity-20');
-            });
-        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988b9aeed16a9daa',t:'MTc1OTQ4NTc2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
+                
