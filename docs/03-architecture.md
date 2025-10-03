@@ -12,45 +12,59 @@ Dự án sẽ được phát triển dựa trên các công nghệ được lự
 
 ### 2.1. Mô hình kiến trúc
 
-Hệ thống được thiết kế theo kiến trúc client-server.
-**Phương án triển khai cho dự án:** **Triển khai tách biệt**
+Hệ thống được thiết kế theo kiến trúc **Client-Server** và áp dụng mô hình **đa người dùng (multi-tenant)**.
 
-- **Frontend:** Triển khai trên nền tảng miễn phí (Vercel, Netlify) để có URL công khai.
-- **Backend:** Chạy local và sử dụng tunnel (ngrok) để tạo URL/IP cho phép frontend và thiết bị IoT truy cập.
+**Phương án triển khai cho dự án:** **Triển khai trên Cloud**
+- **Frontend:** Triển khai trên các nền tảng như Vercel hoặc Netlify.
+- **Backend & Database:** Triển khai trên một nhà cung cấp dịch vụ đám mây (ví dụ: AWS, Azure, Google Cloud) để đảm bảo tính sẵn sàng và khả năng mở rộng. Việc sử dụng `ngrok` chỉ còn là giải pháp tạm thời cho môi trường phát triển.
 
 Sơ đồ dưới đây minh họa kiến trúc tổng thể của hệ thống:
 
 ```mermaid
 graph TD
-    subgraph "Thiết Bị IoT"
-        ESP[<i class='fa fa-envelope'></i> Cảm biến ESP]
+    subgraph "Khách hàng A (Nhà máy A)"
+        DeviceA1[<i class='fa fa-microchip'></i> ESP Device 1]
+        DeviceA2[<i class='fa fa-microchip'></i> ESP Device 2]
+        AdminA[<i class='fa fa-user-shield'></i> Admin Nhà máy A]
+        EmployeeA[<i class='fa fa-user'></i> Employee Nhà máy A]
     end
 
-    subgraph "Hạ Tầng Backend [Local + ngrok]"
-        Backend[<i class='fa fa-envelope'></i> Spring Boot API]
-        DB[<i class='fa fa-envelope'></i> MariaDB]
-        EmailService[<i class='fa fa-envelope'></i> Dịch vụ Email]
-        
-        Backend -- "Lưu/Đọc dữ liệu" --> DB
-        Backend -- "Gửi cảnh báo SOS" --> EmailService
+    subgraph "Khách hàng B (Nhà máy B)"
+        DeviceB1[<i class='fa fa-microchip'></i> ESP Device 3]
+        AdminB[<i class='fa fa-user-shield'></i> Admin Nhà máy B]
     end
+    
+    subgraph "Hệ Thống Đám Mây"
+        subgraph "Hạ Tầng Backend"
+            Backend[<i class='fa fa-server'></i> Spring Boot API]
+            DB[<i class='fa fa-database'></i> MariaDB]
+            EmailService[<i class='fa fa-envelope'></i> Dịch vụ Email]
+            
+            Backend -- "Lưu/Đọc dữ liệu" --> DB
+            Backend -- "Gửi cảnh báo SOS" --> EmailService
+        end
 
-    subgraph "Hạ Tầng Frontend [Vercel / Netlify]"
-        WebApp[<i class='fab  fa-envelope'></i> Next.js App]
-    end
-
-    subgraph "Người Dùng"
-        Admin[<i class='fa  fa-envelope'></i> Quản trị viên]
+        subgraph "Hạ Tầng Frontend"
+            WebApp[<i class='fab fa-react'></i> Next.js App]
+        end
     end
 
     %% Luồng dữ liệu và tương tác
-    ESP -- "1. Gửi dữ liệu (POST /api/sensor-data) <br/> với API Key" --> Backend
-    Admin -- "2. Truy cập Web App" --> WebApp
-    WebApp -- "3. Gọi API (GET, POST, PUT) <br/> với JWT Token" --> Backend
-    Backend -- "4. Trả dữ liệu JSON" --> WebApp
-    EmailService -- "5. Gửi Email cảnh báo" --> Admin
+    DeviceA1 -- "1. Gửi dữ liệu <br/> (deviceId, apiKey)" --> Backend
+    DeviceB1 -- "1. Gửi dữ liệu <br/> (deviceId, apiKey)" --> Backend
+    
+    AdminA -- "2. Truy cập Web App" --> WebApp
+    EmployeeA -- "2. Truy cập Web App" --> WebApp
+    
+    WebApp -- "3. Gọi API <br/> (JWT Token)" --> Backend
+    Backend -- "4. Trả dữ liệu JSON <br/> (Đã lọc theo Nhà máy)" --> WebApp
+    
+    EmailService -- "5. Gửi Email cảnh báo" --> AdminA
+    EmailService -- "5. Gửi Email cảnh báo" --> AdminB
 
-    style ESP fill:#f9f,stroke:#333,stroke-width:2px
+    style DeviceA1 fill:#f9f,stroke:#333,stroke-width:2px
+    style DeviceA2 fill:#f9f,stroke:#333,stroke-width:2px
+    style DeviceB1 fill:#f9f,stroke:#333,stroke-width:2px
     style WebApp fill:#9cf,stroke:#333,stroke-width:2px
     style Backend fill:#9f9,stroke:#333,stroke-width:2px
     style DB fill:#f96,stroke:#333,stroke-width:2px
@@ -58,53 +72,101 @@ graph TD
 
 ### 2.2. Mô Hình Hóa Dữ Liệu (Database Schema)
 
-Cơ sở dữ liệu sử dụng là **MariaDB**. Dưới đây là cấu trúc cho các bảng chính:
+Để hỗ trợ mô hình đa người dùng, cấu trúc CSDL được điều chỉnh để đảm bảo dữ liệu của mỗi "Nhà máy" (tenant) được cách ly.
 
-**1. Bảng `users`**
--   Lưu trữ thông tin đăng nhập và vai trò của người dùng.
+**1. Bảng `factories` (MỚI)**
+-   Lưu trữ thông tin về các khách hàng (nhà máy).
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE factories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL, -- Sẽ được hash bằng bcrypt
-    email VARCHAR(100) NOT NULL UNIQUE,
-    role VARCHAR(20) DEFAULT 'ADMIN',    -- Mặc định là Admin theo yêu cầu
+    name VARCHAR(100) NOT NULL,
+    address TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-**2. Bảng `sensor_data`**
--   Lưu trữ dữ liệu lịch sử từ cảm biến. Thêm `device_id` để có thể mở rộng cho nhiều thiết bị trong tương lai.
+**2. Bảng `users` (Cập nhật)**
+-   Thêm `factory_id` để liên kết mỗi người dùng với một nhà máy.
+-   Cập nhật `role` để bao gồm `ADMIN` và `EMPLOYEE`.
+
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    factory_id INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL, -- 'ADMIN' hoặc 'EMPLOYEE'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE(factory_id, username),
+    UNIQUE(factory_id, email),
+    FOREIGN KEY (factory_id) REFERENCES factories(id) ON DELETE CASCADE
+);
+```
+
+**3. Bảng `devices` (MỚI)**
+-   Lưu trữ thông tin về các thiết bị IoT và liên kết chúng với nhà máy.
+
+```sql
+CREATE TABLE devices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(50) NOT NULL UNIQUE, -- ID vật lý của thiết bị
+    name VARCHAR(100),
+    factory_id INT NOT NULL,
+    api_key VARCHAR(255) NOT NULL UNIQUE, -- API Key để xác thực
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (factory_id) REFERENCES factories(id) ON DELETE CASCADE
+);
+```
+
+**4. Bảng `employee_device_access` (MỚI)**
+-   Bảng trung gian để định nghĩa quyền truy cập của `EMPLOYEE` vào các thiết bị.
+
+```sql
+CREATE TABLE employee_device_access (
+    user_id INT NOT NULL,
+    device_id INT NOT NULL,
+    PRIMARY KEY (user_id, device_id),
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+);
+```
+
+**5. Bảng `sensor_data` (Cập nhật)**
+-   Loại bỏ `device_id` vật lý, thay bằng `device_id` là khóa ngoại trỏ đến bảng `devices`.
 
 ```sql
 CREATE TABLE sensor_data (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    device_id VARCHAR(50) NOT NULL DEFAULT 'default_esp',
+    device_id INT NOT NULL,
     ph DECIMAL(4, 2),
     temperature DECIMAL(5, 2),
-    doDuc DECIMAL(10, 2),       -- Độ đục (Turbidity)
-    doDanDien DECIMAL(10, 2),   -- Độ dẫn điện (Conductivity)
-    timestamp TIMESTAMP NOT NULL, -- Thời gian do ESP gửi lên
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Thời gian lưu vào DB
+    doDuc DECIMAL(10, 2),
+    doDanDien DECIMAL(10, 2),
+    timestamp TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
 );
 ```
 
-**3. Bảng `system_settings`**
--   Lưu trữ các cấu hình động của hệ thống để duy trì trạng thái.
+**6. Bảng `device_settings` (Thay thế `system_settings`)**
+-   Lưu trữ cấu hình cho từng thiết bị thay vì toàn hệ thống.
 
 ```sql
-CREATE TABLE system_settings (
-    setting_key VARCHAR(50) PRIMARY KEY,
-    setting_value VARCHAR(255) NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE device_settings (
+    device_id INT PRIMARY KEY,
+    valve_status VARCHAR(20) DEFAULT 'closed',
+    collection_enabled BOOLEAN DEFAULT true,
+    collection_interval_seconds INT DEFAULT 60,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
--- Khởi tạo các giá trị mặc định
-INSERT INTO system_settings (setting_key, setting_value) VALUES
-('valve_status', 'closed'),
-('collection_enabled', 'true'),
-('collection_interval_seconds', '60');
+    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+);
 ```
 
 ### 2.3. Cơ Chế Giao Tiếp Gần Thời Gian Thực (Polling)
@@ -141,7 +203,7 @@ Cơ chế này hoàn toàn phù hợp với giai đoạn đầu của dự án. 
     -   `spring.datasource.username`: Tên đăng nhập database.
     -   `spring.datasource.password`: Mật khẩu database.
     -   `jwt.secret`: Chuỗi bí mật để ký và xác thực JWT.
-    -   `esp.api-key`: API Key dành cho thiết bị ESP.
+    -   `esp.api-key`: (Sẽ được thay thế bằng cơ chế quản lý API key theo từng thiết bị trong bảng `devices`).
     -   `spring.mail.*`: Các cấu hình để gửi email (host, port, username, password).
 
 **Frontend:**
