@@ -1,0 +1,38 @@
+package iuh.backend.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "sensor_data")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SensorData {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Double ph;
+
+    private Double temperature;
+
+    private Double turbidity;
+
+    private Double conductivity;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime timestamp;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_id", nullable = false)
+    private Device device;
+}
