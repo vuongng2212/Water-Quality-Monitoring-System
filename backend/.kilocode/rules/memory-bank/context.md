@@ -1,6 +1,15 @@
 # Current Context
 
--   **Current Work Focus:** The project has just pivoted from a single-user system to a multi-tenant SaaS platform. The immediate focus is on establishing the foundational architecture for this new model.
--   **Recent Changes:** All project documentation files in the `/docs` directory have been significantly updated to reflect the new multi-tenant scope, including new user roles (`ADMIN`, `EMPLOYEE`), a new database schema, and updated API specifications. The Memory Bank has also just been initialized based on this new documentation.
--   **Next Steps:** The next logical phase is to begin the implementation of the backend based on the updated `docs/05-implementation-plan.md`. This involves setting up the new database schema and creating/updating the corresponding Java entities (`Factory`, `Device`, `User`, etc.).
--   **Implementation Progress:** The project has successfully completed Days 1-4 of the 7-day implementation plan. Days 1-3 established the core infrastructure including Spring Boot setup, database entities, JWT-based security, authentication API, and user management API for `ADMIN` role. Day 4 implemented device management APIs, sensor data ingestion APIs, and device authentication via API keys. The system now supports secure user login, token-based authentication, basic CRUD operations for users, CRUD operations for devices by factory admins, and secure sensor data ingestion from ESP devices using API keys. Work is progressing toward implementing employee-device access mapping and more advanced features as outlined in Days 5-7.
+-   **Current Work Focus:** The project has successfully implemented the foundational multi-tenant data isolation mechanisms. The focus was on ensuring that each "Factory" tenant can only access their own data.
+-   **Recent Changes:**
+    -   Implemented multi-tenancy data isolation using Hibernate Filters and Spring AOP.
+    -   Introduced `TenantContext` to manage `factory_id` per request using `ThreadLocal`.
+    -   Updated `JwtAuthenticationFilter` to extract and set `factory_id` from JWT.
+    -   Added `@FilterDef` and `@Filter` annotations to relevant entities (User, Device, SensorData, EmployeeDeviceAccess, DeviceSettings).
+    -   Created `TenantFilterAspect` to enable/disable Hibernate Filters around repository calls.
+    -   Refactored `UserRepository` and `DeviceRepository` to include `findByIdAndFactoryId` methods for explicit tenant filtering in `findById` operations.
+    -   Updated `UserController` and `DeviceService` to utilize `findByIdAndFactoryId` for all single-object retrieval, update, and delete operations.
+    -   Modified `UserController` and `DeviceController` to return `HttpStatus.FORBIDDEN` (403) for unauthorized cross-tenant data access attempts, ensuring proper API behavior.
+    -   Updated `test_multi_tenancy.sh` script to correctly validate 403 responses as successful data isolation.
+-   **Next Steps:** The project is now ready to proceed with implementing employee-device access mapping and more advanced features as outlined in Days 5-7 of the implementation plan, building upon the robust multi-tenancy foundation.
+-   **Implementation Progress:** The project has completed Days 1-4 and the initial multi-tenancy data isolation for `findById` operations as part of Day 5's foundational tasks. The system now supports secure user login, token-based authentication, basic CRUD operations for users, CRUD operations for devices by factory admins, secure sensor data ingestion from ESP devices using API keys, and robust data isolation for tenant-specific data access.
