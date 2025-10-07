@@ -1,5 +1,6 @@
 package iuh.backend.service;
 
+import iuh.backend.config.TenantContext;
 import iuh.backend.model.Device;
 import iuh.backend.model.Factory;
 import iuh.backend.model.User;
@@ -26,14 +27,13 @@ public class DeviceService {
     private final FactoryRepository factoryRepository;
     private final UserRepository userRepository;
 
-    public DeviceDto createDevice(CreateDeviceRequest request, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
-        Factory factory = user.getFactory();
-        if (factory == null) {
-            throw new IllegalStateException("User is not associated with a factory.");
+    public DeviceDto createDevice(CreateDeviceRequest request) {
+        Long factoryId = TenantContext.getTenantId();
+        if (factoryId == null) {
+            throw new IllegalStateException("Factory ID not found in tenant context.");
         }
+        Factory factory = factoryRepository.findById(factoryId)
+                .orElseThrow(() -> new RuntimeException("Factory not found with ID: " + factoryId));
 
         Device device = new Device();
         device.setName(request.getName());
@@ -45,41 +45,32 @@ public class DeviceService {
         return toDto(savedDevice);
     }
 
-    public List<DeviceDto> getDevices(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        Long factoryId = user.getFactory().getId();
-        return deviceRepository.findByFactoryId(factoryId).stream()
+    public List<DeviceDto> getDevices() {
+        return deviceRepository.findAll().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
-    public DeviceDto getDevice(Long id, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        Long factoryId = user.getFactory().getId();
+    public DeviceDto getDevice(Long id) {
+        Long factoryId = TenantContext.getTenantId();
         Device device = deviceRepository.findByIdAndFactoryId(id, factoryId)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new RuntimeException("Device not found or not in the same factory"));
         return toDto(device);
     }
 
-    public DeviceDto updateDevice(Long id, CreateDeviceRequest request, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        Long factoryId = user.getFactory().getId();
+    public DeviceDto updateDevice(Long id, CreateDeviceRequest request) {
+        Long factoryId = TenantContext.getTenantId();
         Device device = deviceRepository.findByIdAndFactoryId(id, factoryId)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new RuntimeException("Device not found or not in the same factory"));
         device.setName(request.getName());
         Device updatedDevice = deviceRepository.save(device);
         return toDto(updatedDevice);
     }
 
-    public void deleteDevice(Long id, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-        Long factoryId = user.getFactory().getId();
+    public void deleteDevice(Long id) {
+        Long factoryId = TenantContext.getTenantId();
         Device device = deviceRepository.findByIdAndFactoryId(id, factoryId)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new RuntimeException("Device not found or not in the same factory"));
         deviceRepository.delete(device);
     }
 

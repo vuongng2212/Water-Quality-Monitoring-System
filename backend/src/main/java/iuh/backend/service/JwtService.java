@@ -30,6 +30,10 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public Long extractFactoryId(String token) {
+        return extractClaim(token, claims -> claims.get("factoryId", Long.class));
+    }
+
     public String generateToken(UserDetails userDetails, Long factoryId, String role) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("factoryId", factoryId);

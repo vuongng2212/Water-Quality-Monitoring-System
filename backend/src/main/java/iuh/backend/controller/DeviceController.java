@@ -23,37 +23,45 @@ public class DeviceController {
     private final DeviceService deviceService;
 
     @PostMapping
-    public ResponseEntity<DeviceDto> createDevice(@Valid @RequestBody CreateDeviceRequest request,
-                                                  @AuthenticationPrincipal User user) {
-        DeviceDto createdDevice = deviceService.createDevice(request, user.getUsername());
+    public ResponseEntity<DeviceDto> createDevice(@Valid @RequestBody CreateDeviceRequest request) {
+        DeviceDto createdDevice = deviceService.createDevice(request);
         return new ResponseEntity<>(createdDevice, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<DeviceDto>> getDevices(@AuthenticationPrincipal User user) {
-        List<DeviceDto> devices = deviceService.getDevices(user.getUsername());
+    public ResponseEntity<List<DeviceDto>> getDevices() {
+        List<DeviceDto> devices = deviceService.getDevices();
         return ResponseEntity.ok(devices);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DeviceDto> getDevice(@PathVariable Long id,
-                                               @AuthenticationPrincipal User user) {
-        DeviceDto device = deviceService.getDevice(id, user.getUsername());
-        return ResponseEntity.ok(device);
+    public ResponseEntity<DeviceDto> getDevice(@PathVariable Long id) {
+        try {
+            DeviceDto device = deviceService.getDevice(id);
+            return ResponseEntity.ok(device);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DeviceDto> updateDevice(@PathVariable Long id,
-                                                  @Valid @RequestBody CreateDeviceRequest request,
-                                                  @AuthenticationPrincipal User user) {
-        DeviceDto updatedDevice = deviceService.updateDevice(id, request, user.getUsername());
-        return ResponseEntity.ok(updatedDevice);
+                                                  @Valid @RequestBody CreateDeviceRequest request) {
+        try {
+            DeviceDto updatedDevice = deviceService.updateDevice(id, request);
+            return ResponseEntity.ok(updatedDevice);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Long id,
-                                             @AuthenticationPrincipal User user) {
-        deviceService.deleteDevice(id, user.getUsername());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
+        try {
+            deviceService.deleteDevice(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }

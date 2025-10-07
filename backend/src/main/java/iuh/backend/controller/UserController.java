@@ -1,4 +1,5 @@
 package iuh.backend.controller;
+import iuh.backend.config.TenantContext;
 
 import iuh.backend.model.Factory;
 import iuh.backend.model.User;
@@ -31,11 +32,13 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(@AuthenticationPrincipal UserDetails currentUser,
-                                              @RequestBody CreateUserRequest request) {
-        User adminUser = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-
-        Factory factory = adminUser.getFactory();
+                                               @RequestBody CreateUserRequest request) {
+        Long factoryId = TenantContext.getTenantId();
+        if (factoryId == null) {
+            throw new RuntimeException("Factory ID not found in tenant context");
+        }
+        Factory factory = factoryRepository.findById(factoryId)
+                .orElseThrow(() -> new RuntimeException("Factory not found with ID: " + factoryId));
 
         User newUser = User.builder()
                 .username(request.getUsername())
@@ -50,59 +53,55 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers(@AuthenticationPrincipal UserDetails currentUser) {
-        User adminUser = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-
-        List<User> users = userRepository.findByFactory(adminUser.getFactory());
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users.stream().map(this::convertToDto).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@AuthenticationPrincipal UserDetails currentUser,
-                                               @PathVariable Long id) {
-        User adminUser = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-
-        User user = userRepository.findById(id)
-                .filter(u -> u.getFactory().equals(adminUser.getFactory()))
-                .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
-
-        return ResponseEntity.ok(convertToDto(user));
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        Long factoryId = TenantContext.getTenantId();
+        try {
+            User user = userRepository.findByIdAndFactoryId(id, factoryId)
+                    .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
+            return ResponseEntity.ok(convertToDto(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@AuthenticationPrincipal UserDetails currentUser,
-                                              @PathVariable Long id,
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
                                               @RequestBody UpdateUserRequest request) {
-        User adminUser = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+        Long factoryId = TenantContext.getTenantId();
+        try {
+            User user = userRepository.findByIdAndFactoryId(id, factoryId)
+                    .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
 
-        User user = userRepository.findById(id)
-                .filter(u -> u.getFactory().equals(adminUser.getFactory()))
-                .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
+            if (request.getUsername() != null) user.setUsername(request.getUsername());
+            if (request.getEmail() != null) user.setEmail(request.getEmail());
+            if (request.getPassword() != null && !request.getPassword().isEmpty()) user.setPassword(passwordEncoder.encode(request.getPassword()));
+            if (request.getRole() != null) user.setRole(request.getRole());
 
-        if (request.getUsername() != null) user.setUsername(request.getUsername());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) user.setPassword(passwordEncoder.encode(request.getPassword()));
-        if (request.getRole() != null) user.setRole(request.getRole());
-
-        userRepository.save(user);
-        return ResponseEntity.ok(convertToDto(user));
+            userRepository.save(user);
+            return ResponseEntity.ok(convertToDto(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetails currentUser,
-                                           @PathVariable Long id) {
-        User adminUser = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        Long factoryId = TenantContext.getTenantId();
+        try {
+            User user = userRepository.findByIdAndFactoryId(id, factoryId)
+                    .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
 
-        User user = userRepository.findById(id)
-                .filter(u -> u.getFactory().equals(adminUser.getFactory()))
-                .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
-
-        userRepository.delete(user);
-        return ResponseEntity.noContent().build();
+            userRepository.delete(user);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     private UserDto convertToDto(User user) {

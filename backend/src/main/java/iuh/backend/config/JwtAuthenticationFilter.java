@@ -1,4 +1,5 @@
 package iuh.backend.config;
+import iuh.backend.config.TenantContext;
 
 import iuh.backend.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -44,21 +45,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
-        username = jwtService.extractUsername(jwt);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            username = jwtService.extractUsername(jwt);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    // Extract factoryId from JWT and set it in TenantContext
+                    Long factoryId = jwtService.extractFactoryId(jwt);
+                    if (factoryId != null) {
+                        TenantContext.setTenantId(factoryId);
+                    }
+                }
             }
+            filterChain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
         }
-        filterChain.doFilter(request, response);
     }
 }
