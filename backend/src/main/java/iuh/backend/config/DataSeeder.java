@@ -21,34 +21,60 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (factoryRepository.count() == 0) {
-            // Create a new factory
-            Factory factory = new Factory();
-            factory.setName("Sample Factory");
-            factory.setAddress("123 Sample Street");
-            factoryRepository.save(factory);
+            // Create Factory A
+            Factory factoryA = new Factory();
+            factoryA.setName("Factory A");
+            factoryA.setAddress("123 Main St, City A");
+            factoryRepository.save(factoryA);
 
-            // Create an ADMIN user
-            User admin = new User();
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setEmail("admin@example.com");
-            admin.setRole(User.Role.ADMIN);
-            admin.setFactory(factory);
-            userRepository.save(admin);
+            // Create ADMIN for Factory A
+            User adminA = new User();
+            adminA.setUsername("adminA");
+            adminA.setPassword(passwordEncoder.encode("admin"));
+            adminA.setEmail("adminA@example.com");
+            adminA.setRole(User.Role.ADMIN);
+            adminA.setFactory(factoryA);
+            userRepository.save(adminA);
 
-            // Create an EMPLOYEE user
-            User employee = new User();
-            employee.setUsername("employee");
-            employee.setPassword(passwordEncoder.encode("employee"));
-            employee.setEmail("employee@example.com");
-            employee.setRole(User.Role.EMPLOYEE);
-            employee.setFactory(factory);
-            userRepository.save(employee);
+            // Create EMPLOYEE for Factory A
+            User employeeA = new User();
+            employeeA.setUsername("employeeA");
+            employeeA.setPassword(passwordEncoder.encode("employee"));
+            employeeA.setEmail("employeeA@example.com");
+            employeeA.setRole(User.Role.EMPLOYEE);
+            employeeA.setFactory(factoryA);
+            userRepository.save(employeeA);
+
+            // Create Factory B
+            Factory factoryB = new Factory();
+            factoryB.setName("Factory B");
+            factoryB.setAddress("456 Oak Ave, City B");
+            factoryRepository.save(factoryB);
+
+            // Create ADMIN for Factory B
+            User adminB = new User();
+            adminB.setUsername("adminB");
+            adminB.setPassword(passwordEncoder.encode("admin"));
+            adminB.setEmail("adminB@example.com");
+            adminB.setRole(User.Role.ADMIN);
+            adminB.setFactory(factoryB);
+            userRepository.save(adminB);
+
+            // Create EMPLOYEE for Factory B
+            User employeeB = new User();
+            employeeB.setUsername("employeeB");
+            employeeB.setPassword(passwordEncoder.encode("employee"));
+            employeeB.setEmail("employeeB@example.com");
+            employeeB.setRole(User.Role.EMPLOYEE);
+            employeeB.setFactory(factoryB);
+            userRepository.save(employeeB);
 
             System.out.println("=========================================");
-            System.out.println("Sample data has been seeded.");
-            System.out.println("ADMIN user: admin / admin");
-            System.out.println("EMPLOYEE user: employee / employee");
+            System.out.println("Sample multi-tenant data has been seeded.");
+            System.out.println("Factory A Admin: adminA / admin");
+            System.out.println("Factory A Employee: employeeA / employee");
+            System.out.println("Factory B Admin: adminB / admin");
+            System.out.println("Factory B Employee: employeeB / employee");
             System.out.println("=========================================");
         }
     }
