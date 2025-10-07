@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -25,13 +26,15 @@ public class Device {
     @Column(nullable = false, unique = true)
     private String apiKey;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "factory_id", nullable = false)
     private Factory factory;
 
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private Set<SensorData> sensorData;
 
     @OneToOne(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private DeviceSettings deviceSettings;
 }
