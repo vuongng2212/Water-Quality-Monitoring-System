@@ -1,5 +1,0 @@
-# Current Context
-
--   **Current Work Focus:** The project has just pivoted from a single-user system to a multi-tenant SaaS platform. The immediate focus is on establishing the foundational architecture for this new model.
--   **Recent Changes:** All project documentation files in the `/docs` directory have been significantly updated to reflect the new multi-tenant scope, including new user roles (`ADMIN`, `EMPLOYEE`), a new database schema, and updated API specifications. The Memory Bank has also just been initialized based on this new documentation.
--   **Next Steps:** The next logical phase is to begin the implementation of the backend based on the updated `docs/05-implementation-plan.md`. This involves setting up the new database schema and creating/updating the corresponding Java entities (`Factory`, `Device`, `User`, etc.).
