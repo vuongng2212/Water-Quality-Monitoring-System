@@ -5,15 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
-
 @Entity
 @Table(name = "employee_device_access")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Filter(name = "tenantFilter", condition = "user.factory_id = :tenantId")
 public class EmployeeDeviceAccess {
 
     @EmbeddedId

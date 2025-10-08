@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Filter(name = "tenantFilter", condition = "device.factory_id = :tenantId")
+@Filter(name = "tenantFilter", condition = "EXISTS (SELECT 1 FROM devices d WHERE d.id = device_id AND d.factory_id = :tenantId)")
 public class SensorData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
