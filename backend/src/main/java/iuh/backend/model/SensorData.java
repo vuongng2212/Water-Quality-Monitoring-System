@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Filter(name = "tenantFilter", condition = "EXISTS (SELECT 1 FROM devices d WHERE d.id = device_id AND d.factory_id = :tenantId)")
 public class SensorData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
