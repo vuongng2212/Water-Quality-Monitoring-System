@@ -6,8 +6,8 @@ function ViewControls() {
     <div className="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-md items-center">
       <div className="flex items-center space-x-2">
         <label htmlFor="roleSwitcher" className="text-sm font-medium text-gray-700">Xem với vai trò:</label>
-        <select id="roleSwitcher" className="border border-gray-300 rounded-md px-3 py-2">
-          <option value="ADMIN" selected>Admin</option>
+        <select id="roleSwitcher" className="border border-gray-300 rounded-md px-3 py-2" defaultValue="ADMIN">
+          <option value="ADMIN">Admin</option>
           <option value="EMPLOYEE">Employee</option>
         </select>
       </div>
