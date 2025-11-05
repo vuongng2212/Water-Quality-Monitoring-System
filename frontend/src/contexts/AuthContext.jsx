@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -17,22 +18,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    console.log('API Base URL:', import.meta.env.NEXT_PUBLIC_API_BASE_URL); // Thêm dòng này để debug
     try {
-      const response = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
-      const { token, user: userInfo } = data; // Assuming backend returns {token, user}
+      const response = await api.post('/auth/login', { username, password });
+      const { token, user: userInfo } = response.data;
 
       // Store token in localStorage
       localStorage.setItem('token', token);
@@ -58,7 +46,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     loading, // Expose loading state
- };
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

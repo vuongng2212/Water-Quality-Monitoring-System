@@ -1,14 +1,8 @@
 import React from 'react';
 
-function LatestDataTable() {
-  // Mock data for now
-  const data = [
-    { time: '10:31:00', ph: 7.4, temp: 25.4, turbidity: 2.2, conductivity: 455 },
-    { time: '10:30:45', ph: 7.2, temp: 25.5, turbidity: 2.1, conductivity: 452 },
-    { time: '10:30:30', ph: 7.3, temp: 25.3, turbidity: 2.3, conductivity: 458 },
-    { time: '10:30:15', ph: 7.1, temp: 25.4, turbidity: 2.0, conductivity: 451 },
-    { time: '10:30:00', ph: 7.2, temp: 25.3, turbidity: 2.1, conductivity: 450 },
-  ];
+function LatestDataTable({ data = [] }) {
+  // Ensure data is an array
+  const safeData = Array.isArray(data) ? data : [];
 
   return (
     <div className="overflow-x-auto">
@@ -23,15 +17,25 @@ function LatestDataTable() {
           </tr>
         </thead>
         <tbody id="dataTableBody" className="bg-white divide-y divide-gray-200">
-          {data.map((row, index) => (
-            <tr key={index}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.time}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.ph}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.temp}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.turbidity}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.conductivity}</td>
+          {safeData.length === 0 ? (
+            <tr>
+              <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
+                Chưa có dữ liệu
+              </td>
             </tr>
-          ))}
+          ) : (
+            safeData.map((row, index) => (
+              <tr key={index}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {new Date(row.timestamp).toLocaleTimeString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.ph || '--'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.temperature || '--'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.turbidity || '--'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.conductivity || '--'}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
