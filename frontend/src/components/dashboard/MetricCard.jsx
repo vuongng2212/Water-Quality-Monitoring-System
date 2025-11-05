@@ -1,10 +1,10 @@
 import React from 'react';
 
 const iconColorMap = {
-    '🧪': 'bg-blue-100 text-blue-600',
-    '🌡️': 'bg-red-100 text-red-600',
-    '💧': 'bg-yellow-100 text-yellow-600',
-    '⚡': 'bg-green-100 text-green-600',
+  '🧪': 'bg-blue-100 text-blue-600',
+  '🌡️': 'bg-red-100 text-red-600',
+  '💧': 'bg-yellow-100 text-yellow-600',
+  '⚡': 'bg-green-100 text-green-600',
 };
 
 function MetricCard({ data }) {
@@ -18,9 +18,11 @@ function MetricCard({ data }) {
         </div>
         <div className="ml-4">
           <p className="text-sm font-medium text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}{unit}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {value !== null ? `${value}${unit}` : '--'}
+          </p>
           <p className="text-xs text-gray-400 mt-1">
-            {standard ? `Tiêu chuẩn: ${standard}` : `Cập nhật: ${updated}`}
+            {standard ? `Tiêu chuẩn: ${standard}` : updated ? `Cập nhật: ${updated}` : ''}
           </p>
         </div>
       </div>
@@ -28,4 +30,4 @@ function MetricCard({ data }) {
   );
 }
 
-export default MetricCard;
+export default React.memo(MetricCard);
