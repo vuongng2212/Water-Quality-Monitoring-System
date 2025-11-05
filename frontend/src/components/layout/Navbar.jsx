@@ -7,7 +7,7 @@ function Navbar() {
   const isAdmin = user?.role === 'ADMIN';
 
   return (
-    <nav className="gradient-bg text-white shadow-lg">
+    <nav className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -15,11 +15,11 @@ function Navbar() {
               <h1 className="text-xl font-bold">🌊 Giám sát Chất lượng Nước</h1>
             </div>
             <div className="hidden md:block ml-10">
-              <div className="flex items-baseline space-x-4">
+              <div className="flex items-baseline space-x-1">
                 <NavLink
                   to="/dashboard"
                   className={({ isActive }) =>
-                    `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-20'}`
+                    `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:bg-white hover:bg-opacity-10'}`
                   }
                 >
                   Dashboard
@@ -27,7 +27,7 @@ function Navbar() {
                 <NavLink
                   to="/history"
                   className={({ isActive }) =>
-                    `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-20'}`
+                    `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:bg-white hover:bg-opacity-10'}`
                   }
                 >
                   Lịch sử
@@ -36,7 +36,7 @@ function Navbar() {
                   <NavLink
                     to="/users"
                     className={({ isActive }) =>
-                      `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-20'}`
+                      `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:bg-white hover:bg-opacity-10'}`
                     }
                   >
                     Người dùng
@@ -49,7 +49,7 @@ function Navbar() {
             <span className="mr-4">👤 {user?.name || 'User'} (Nhà máy Alpha)</span>
             <button
               onClick={logout}
-              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             >
               Đăng xuất
             </button>

@@ -9,11 +9,11 @@ function AlertBanner() {
   }
 
   return (
-    <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative animate-pulse">
+    <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg shadow-md animate-pulse">
       <div className="flex items-center">
         <span className="text-xl mr-2">⚠️</span>
-        <span>{message}</span>
-        <button onClick={() => setVisible(false)} className="ml-auto text-red-500 hover:text-red-700">
+        <span className="font-medium">{message}</span>
+        <button onClick={() => setVisible(false)} className="ml-auto text-red-500 hover:text-red-700 font-bold text-lg">
           ✕
         </button>
       </div>
