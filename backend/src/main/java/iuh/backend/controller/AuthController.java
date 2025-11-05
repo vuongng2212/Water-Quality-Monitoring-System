@@ -4,6 +4,8 @@ import iuh.backend.payload.request.LoginRequest;
 import iuh.backend.payload.response.LoginResponse;
 import iuh.backend.repository.UserRepository;
 import iuh.backend.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "APIs cho xác thực người dùng")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -26,6 +29,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
+    @Operation(summary = "Đăng nhập", description = "Xác thực người dùng và trả về JWT token")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
