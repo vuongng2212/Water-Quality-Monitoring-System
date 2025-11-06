@@ -42,6 +42,16 @@ function Navbar() {
                     Người dùng
                   </NavLink>
                 )}
+                {isAdmin && (
+                  <NavLink
+                    to="/devices"
+                    className={({ isActive }) =>
+                      `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:bg-white hover:bg-opacity-10'}`
+                    }
+                  >
+                    Thiết bị
+                  </NavLink>
+                )}
               </div>
             </div>
           </div>

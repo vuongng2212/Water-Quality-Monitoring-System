@@ -95,6 +95,11 @@ const deviceAPI = {
   assignDevice: async (deviceId, userId) => {
     const response = await api.post(`/devices/${deviceId}/assign`, { userId });
     return response.data;
+  },
+
+  unassignDevice: async (deviceId, userId) => {
+    const response = await api.post(`/devices/${deviceId}/unassign`, { userId });
+    return response.data;
   }
 };
 
