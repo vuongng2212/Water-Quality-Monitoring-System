@@ -43,6 +43,8 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     isAuthenticated: !!user,
+    isAdmin: user?.role === 'ADMIN',
+    isEmployee: user?.role === 'EMPLOYEE',
     login,
     logout,
     loading, // Expose loading state
