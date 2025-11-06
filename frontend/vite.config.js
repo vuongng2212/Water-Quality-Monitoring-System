@@ -14,31 +14,6 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      '/auth': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/auth/, '/api/auth')
-      },
-      '/users': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/users/, '/api/users')
-      },
-      '/devices': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/devices/, '/api/devices')
-      },
-      '/sensor-data': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/sensor-data/, '/api/sensor-data')
-      }
-    }
+    // Removed proxy, using direct API calls
   }
 })
