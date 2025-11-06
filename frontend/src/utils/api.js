@@ -1,6 +1,10 @@
 import axios from 'axios';
+import { getCookie } from './cookies';
+import { deleteCookie } from './cookies';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = 'http://localhost:8080/api';
+
+console.log('API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +13,7 @@ const api = axios.create({
 // Interceptor để thêm token vào header
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getCookie('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,14 +24,14 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor để xử lý lỗi 401 (Unauthorized)
+// Interceptor để xử lý lỗi 401 (Unauthorized) và 403 (Forbidden)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       // Xóa token và chuyển hướng về trang đăng nhập
-      localStorage.removeItem('token');
-      window.location.href = '/login'; // Hoặc sử dụng navigate nếu trong component
+      deleteCookie('token');
+      // window.location.href = '/login'; // Tạm tắt redirect để debug
     }
     return Promise.reject(error);
   }
