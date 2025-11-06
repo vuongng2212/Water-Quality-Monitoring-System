@@ -20,6 +20,23 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [firstDeviceId, setFirstDeviceId] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Listen for online/offline events
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Lấy danh sách thiết bị và 20 bản ghi đầu tiên khi mount
   useEffect(() => {
@@ -49,8 +66,14 @@ function DashboardPage() {
             }));
           }
         }
-      } catch {
-        setError('Không thể tải dữ liệu dashboard. Vui lòng thử lại.');
+      } catch (error) {
+        if (error.response?.status === 403) {
+          setError('Bạn không có quyền truy cập dữ liệu này. Vui lòng liên hệ quản trị viên.');
+        } else if (error.response?.status === 401) {
+          setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          setError('Không thể tải dữ liệu dashboard. Vui lòng thử lại.');
+        }
         setHistoryData([]);
       } finally {
         setLoading(false);
@@ -63,6 +86,7 @@ function DashboardPage() {
   useEffect(() => {
     if (!firstDeviceId) return;
     const poll = async () => {
+      setSyncing(true);
       try {
         console.log('[POLL] Bắt đầu polling cho device:', firstDeviceId);
         const sensorDataResponse = await sensorDataAPI.getHistory(firstDeviceId, null, null, 1);
@@ -107,8 +131,12 @@ function DashboardPage() {
         } else {
           console.log('[POLL] Không có dữ liệu trong response');
         }
+        setLastSyncTime(new Date().toLocaleTimeString());
       } catch (error) {
         console.error('[POLL] Lỗi khi polling:', error);
+        setError('Lỗi đồng bộ dữ liệu. Đang thử lại...');
+      } finally {
+        setSyncing(false);
       }
     };
     const interval = setInterval(poll, 10000);
@@ -124,9 +152,41 @@ function DashboardPage() {
 
       <h2 id="dashboard-title" className="text-2xl font-bold text-gray-800 mb-4">Dashboard Tổng quan</h2>
 
+      {/* Sync Status */}
+      <div className="mb-4 flex items-center space-x-4 text-sm text-gray-600">
+        <div className="flex items-center space-x-2">
+          <span className={isOnline ? 'text-green-500' : 'text-red-500'}>
+            {isOnline ? '🟢' : '🔴'} {isOnline ? 'Online' : 'Offline'}
+          </span>
+        </div>
+        {syncing ? (
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            <span>Đang đồng bộ...</span>
+          </div>
+        ) : (
+          <span>✅ Đồng bộ thành công</span>
+        )}
+        {lastSyncTime && <span>Lần cuối: {lastSyncTime}</span>}
+      </div>
+
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded flex justify-between items-center">
+          <span>{error}</span>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Thử lại
+            </button>
+            <button
+              onClick={() => setError(null)}
+              className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Đóng
+            </button>
+          </div>
         </div>
       )}
 
