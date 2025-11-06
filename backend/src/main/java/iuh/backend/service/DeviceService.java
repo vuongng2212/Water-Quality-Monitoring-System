@@ -59,9 +59,13 @@ public class DeviceService {
             User currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("Current user not found: " + userDetails.getUsername()));
 
+            System.out.println("User: " + currentUser.getUsername() + ", Role: " + currentUser.getRole() + ", Factory: " + (currentUser.getFactory() != null ? currentUser.getFactory().getId() : "null"));
+
             // Nếu là ADMIN, trả về tất cả thiết bị trong factory
             if (currentUser.getRole() == Role.ADMIN) {
-                return deviceRepository.findAll().stream()
+                List<Device> devices = deviceRepository.findAll();
+                System.out.println("Found " + devices.size() + " devices");
+                return devices.stream()
                         .map(this::toDto)
                         .collect(Collectors.toList());
             }

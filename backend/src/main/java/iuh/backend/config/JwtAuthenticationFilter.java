@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("No Authorization header or not Bearer for request: " + request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -64,6 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Long factoryId = jwtService.extractFactoryId(jwt);
                     if (factoryId != null) {
                         TenantContext.setTenantId(factoryId);
+                        System.out.println("Set tenantId: " + factoryId + " for user: " + username);
+                    } else {
+                        System.out.println("No factoryId in JWT for user: " + username);
                     }
                 }
             }
