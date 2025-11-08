@@ -1,6 +1,6 @@
 package iuh.backend.payload.request;
 
-import iuh.backend.model.User;
+import iuh.backend.model.enums.Role;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 
@@ -10,5 +10,5 @@ public class UpdateUserRequest {
     private String password;
     @Email
     private String email;
-    private User.Role role;
+    private Role role;
 }

@@ -1,5 +1,6 @@
 package iuh.backend.model;
 
+import iuh.backend.model.enums.Role;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
@@ -46,11 +47,6 @@ public class User implements UserDetails {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "factory_id", nullable = false)
     private Factory factory;
-
-    public enum Role {
-        ADMIN,
-        EMPLOYEE
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
