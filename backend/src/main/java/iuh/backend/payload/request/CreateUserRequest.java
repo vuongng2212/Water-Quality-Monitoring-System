@@ -1,6 +1,6 @@
 package iuh.backend.payload.request;
 
-import iuh.backend.model.User;
+import iuh.backend.model.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,5 +21,5 @@ public class CreateUserRequest {
     private String email;
 
     @NotNull
-    private User.Role role;
+    private Role role;
 }

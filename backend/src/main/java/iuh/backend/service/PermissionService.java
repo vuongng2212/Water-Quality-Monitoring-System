@@ -5,7 +5,7 @@ import iuh.backend.model.Device;
 import iuh.backend.model.EmployeeDeviceAccess;
 import iuh.backend.model.EmployeeDeviceAccessId;
 import iuh.backend.model.User;
-import iuh.backend.model.User.Role;
+import iuh.backend.model.enums.Role;
 import iuh.backend.repository.DeviceRepository;
 import iuh.backend.repository.EmployeeDeviceAccessRepository;
 import iuh.backend.repository.UserRepository;
