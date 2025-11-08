@@ -41,6 +41,7 @@ function DeviceControl({ devices = [] }) {
       setLoading(true);
       setError('');
       const settings = await deviceControlAPI.getDeviceSettings(deviceId);
+      console.log('Loaded settings for device', deviceId, ':', settings);
       setDeviceSettings(settings);
     } catch (err) {
       console.error('Error loading device settings:', err);
@@ -57,8 +58,8 @@ function DeviceControl({ devices = [] }) {
       setLoading(true);
       setError('');
       await deviceControlAPI.controlValve(selectedDevice, open);
-      // Update local state
-      setDeviceSettings(prev => prev ? { ...prev, isValveOpen: open } : null);
+      // Reload settings from server
+      await loadDeviceSettings(selectedDevice);
     } catch (err) {
       console.error('Error controlling valve:', err);
       setError('Không thể điều khiển van');
@@ -74,11 +75,29 @@ function DeviceControl({ devices = [] }) {
       setLoading(true);
       setError('');
       await deviceControlAPI.setDataInterval(selectedDevice, parseInt(newInterval));
-      // Update local state
-      setDeviceSettings(prev => prev ? { ...prev, dataIntervalSeconds: parseInt(newInterval) } : null);
+      // Reload settings from server
+      await loadDeviceSettings(selectedDevice);
     } catch (err) {
       console.error('Error setting interval:', err);
       setError('Không thể thay đổi khoảng thời gian');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCollectingDataToggle = async (collecting) => {
+    if (!selectedDevice) return;
+
+    try {
+      setLoading(true);
+      setError('');
+      console.log('Toggling collectingData to:', collecting);
+      await deviceControlAPI.setCollectingData(selectedDevice, collecting);
+      // Reload settings from server
+      await loadDeviceSettings(selectedDevice);
+    } catch (err) {
+      console.error('Error toggling data collection:', err);
+      setError('Không thể thay đổi trạng thái thu thập dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -111,24 +130,24 @@ function DeviceControl({ devices = [] }) {
         </div>
       )}
 
-      {selectedDevice && deviceSettings && (
+      {selectedDevice && (
         <>
           <ToggleSwitch
             label="Van cấp nước"
             id="valveToggle"
-            checked={deviceSettings.isValveOpen || false}
+            checked={deviceSettings?.valveOpen || false}
             onChange={(e) => handleValveControl(e.target.checked)}
-            statusText={`Trạng thái: ${deviceSettings.isValveOpen ? 'Mở' : 'Đóng'}`}
-            loading={loading}
+            statusText={`Trạng thái: ${deviceSettings?.valveOpen ? 'Mở' : 'Đóng'}`}
+            loading={loading || !deviceSettings}
           />
 
           <ToggleSwitch
             label="Thu thập dữ liệu"
             id="dataToggle"
-            checked={deviceSettings.isCollectingData || false}
-            onChange={() => { }} // TODO: Implement when backend supports
-            statusText={`Trạng thái: ${deviceSettings.isCollectingData ? 'Đang hoạt động' : 'Tạm dừng'}`}
-            loading={loading}
+            checked={deviceSettings?.collectingData || false}
+            onChange={(e) => handleCollectingDataToggle(e.target.checked)}
+            statusText={`Trạng thái: ${deviceSettings?.collectingData ? 'Đang hoạt động' : 'Tạm dừng'}`}
+            loading={loading || !deviceSettings}
           />
 
           <div>
@@ -140,25 +159,21 @@ function DeviceControl({ devices = [] }) {
               id="intervalSlider"
               min="5"
               max="60"
-              value={deviceSettings.dataIntervalSeconds || 15}
+              value={deviceSettings?.dataIntervalSeconds || 15}
               onChange={(e) => handleIntervalChange(e.target.value)}
-              disabled={loading}
+              disabled={loading || !deviceSettings}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>5s</span>
-              <span>{deviceSettings.dataIntervalSeconds || 15}s</span>
+              <span>{deviceSettings?.dataIntervalSeconds || 15}s</span>
               <span>60s</span>
             </div>
           </div>
         </>
       )}
 
-      {selectedDevice && !deviceSettings && !loading && (
-        <div className="text-center text-gray-500 text-sm py-4">
-          Đang tải cài đặt thiết bị...
-        </div>
-      )}
+
     </div>
   );
 }
