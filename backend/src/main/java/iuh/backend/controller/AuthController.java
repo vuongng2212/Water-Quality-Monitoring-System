@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import iuh.backend.model.User;
 import iuh.backend.payload.request.LoginRequest;
 import iuh.backend.payload.response.LoginResponse;
+import iuh.backend.payload.response.UserDto;
 import iuh.backend.repository.UserRepository;
 import iuh.backend.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -49,12 +51,20 @@ public class AuthController {
 
     @GetMapping("/me")
     @Operation(summary = "Lấy thông tin người dùng hiện tại", description = "Trả về thông tin người dùng đã xác thực")
-    public ResponseEntity<?> getCurrentUser() {
+    public ResponseEntity<UserDto> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
-        // Return user info or just ok
-        return ResponseEntity.ok().build();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElseThrow();
+        UserDto userDto = UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .factoryId(user.getFactory().getId())
+                .build();
+        return ResponseEntity.ok(userDto);
     }
 }

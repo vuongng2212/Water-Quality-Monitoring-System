@@ -4,6 +4,7 @@ import iuh.backend.config.TenantContext;
 import iuh.backend.model.Factory;
 import iuh.backend.model.User;
 import iuh.backend.payload.request.CreateUserRequest;
+import iuh.backend.payload.request.ChangePasswordRequest;
 import iuh.backend.payload.request.UpdateUserRequest;
 import iuh.backend.payload.response.UserDto;
 import iuh.backend.repository.FactoryRepository;
@@ -97,7 +98,36 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @PutMapping("/{id}/password")
+    @Operation(summary = "Đổi mật khẩu", description = "Đổi mật khẩu cho người dùng")
+    public ResponseEntity<?> changePassword(@PathVariable Long id,
+                                           @RequestBody ChangePasswordRequest request,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        Long factoryId = TenantContext.getTenantId();
+        try {
+            User user = userRepository.findByIdAndFactoryId(id, factoryId)
+                    .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
+
+            // Check if the current user is changing their own password or is admin
+            if (!user.getUsername().equals(userDetails.getUsername()) && !userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            // Verify current password
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mật khẩu hiện tại không đúng");
+            }
+
+            // Update password
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
     @Operation(summary = "Xóa người dùng", description = "Xóa một người dùng")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Long factoryId = TenantContext.getTenantId();
