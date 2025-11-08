@@ -17,6 +17,7 @@ import iuh.backend.payload.request.SensorDataRequest;
 import iuh.backend.payload.response.SensorDataDto;
 import iuh.backend.repository.SensorDataRepository;
 import iuh.backend.service.PermissionService;
+import iuh.backend.service.AlertService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +39,7 @@ public class SensorDataController {
 
     private final SensorDataRepository sensorDataRepository;
     private final PermissionService permissionService;
+    private final AlertService alertService;
 
     @PostMapping
     @Operation(summary = "Nhận dữ liệu cảm biến", description = "Endpoint dành cho thiết bị IoT gửi dữ liệu cảm biến lên hệ thống. Yêu cầu xác thực bằng header X-API-KEY")
@@ -55,6 +57,9 @@ public class SensorDataController {
         System.out.println("[SENSOR_DATA] Nhận dữ liệu từ device " + device.getId() + " (" + device.getName() + "): " +
                           "pH=" + request.getPh() + ", temp=" + request.getTemperature() + ", turbidity=" + request.getTurbidity() + ", conductivity=" + request.getConductivity() +
                           ", timestamp=" + saved.getTimestamp() + ", id=" + saved.getId());
+
+        // Check for alerts
+        alertService.checkAndSendAlerts(device, request.getPh(), request.getTemperature(), request.getTurbidity(), request.getConductivity());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
