@@ -69,6 +69,11 @@ const userAPI = {
   deleteUser: async (userId) => {
     const response = await api.delete(`/users/${userId}`);
     return response.data;
+  },
+
+  changePassword: async (userId, passwordData) => {
+    const response = await api.put(`/users/${userId}/password`, passwordData);
+    return response.data;
   }
 };
 
@@ -106,6 +111,16 @@ const deviceAPI = {
   unassignDevice: async (deviceId, userId) => {
     const response = await api.post(`/devices/${deviceId}/unassign`, { userId });
     return response.data;
+  },
+
+  getDeviceSettings: async (deviceId) => {
+    const response = await api.get(`/devices/${deviceId}/settings`);
+    return response.data;
+  },
+
+  updateDeviceSettings: async (deviceId, settingsData) => {
+    const response = await api.put(`/devices/${deviceId}/settings`, settingsData);
+    return response.data;
   }
 };
 
@@ -126,7 +141,7 @@ const sensorDataAPI = {
     if (endDate) url += `endDate=${endDate}&`;
     url += `limit=${limit}`;
     const response = await api.get(url);
-    return response.data;
+    return response.data.content || []; // Page object has content array
   },
 
   // For real-time polling

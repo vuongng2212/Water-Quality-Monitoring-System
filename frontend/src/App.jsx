@@ -25,6 +25,7 @@ import MainLayout from './components/layout/MainLayout';
 import UserManagementPage from './pages/UserManagementPage'; // Will create this
 import HistoryPage from './pages/HistoryPage'; // Will create this
 import DeviceManagementPage from './pages/DeviceManagementPage';
+import ProfilePage from './pages/ProfilePage';
 
 function DashboardRoutes() {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ function DashboardRoutes() {
       <Routes>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/history" element={<HistoryPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         {isAdmin && <Route path="/users" element={<UserManagementPage />} />}
         {isAdmin && <Route path="/devices" element={<DeviceManagementPage />} />}
         {/* Add other dashboard-related routes here */}

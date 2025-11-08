@@ -25,11 +25,12 @@ export function AuthProvider({ children }) {
           setUser(null);
           setLoading(false);
         } else {
-          console.log('AuthContext: Token is valid locally, verifying with backend');
-          // Verify token with backend
-          api.get('/auth/me').then(() => {
-            console.log('AuthContext: Token verified with backend');
-            setUser({ token, ...decoded });
+          console.log('AuthContext: Token is valid locally, setting initial user data');
+          setUser({ token, username: decoded.sub, role: decoded.role, factoryId: decoded.factoryId });
+          // Verify token with backend and get full user data
+          api.get('/auth/me').then((response) => {
+            console.log('AuthContext: Token verified with backend, updating with full user data:', response.data);
+            setUser({ ...response.data, token });
             setLoading(false);
           }).catch((error) => {
             console.log('AuthContext: Token verification failed:', error);
@@ -62,8 +63,18 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.log('AuthContext: Token decode failed after login:', error);
       }
-      setUser({ token, ...decoded });
-      return { success: true, user: { token, ...decoded } };
+      // Set initial user data from token
+      const initialUser = { token, username: decoded.sub, role: decoded.role, factoryId: decoded.factoryId };
+      setUser(initialUser);
+      // Fetch full user data
+      try {
+        const userResponse = await api.get('/auth/me');
+        setUser({ ...userResponse.data, token });
+      } catch (error) {
+        console.log('AuthContext: Failed to fetch user data after login:', error);
+        // Keep initial user data
+      }
+      return { success: true, user: initialUser };
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: error.message };

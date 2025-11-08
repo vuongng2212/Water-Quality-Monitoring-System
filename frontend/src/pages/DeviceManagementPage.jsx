@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { deviceAPI, userAPI } from '@/utils/api.js';
+import { useAuth } from '../contexts/AuthContext';
 
 function DeviceManagementPage() {
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN';
     const [devices, setDevices] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,11 +12,17 @@ function DeviceManagementPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingDevice, setEditingDevice] = useState(null);
     const [assigningDevice, setAssigningDevice] = useState(null);
+    const [configuringDevice, setConfiguringDevice] = useState(null);
     const [formData, setFormData] = useState({
         name: ''
     });
     const [assignData, setAssignData] = useState({
         userId: ''
+    });
+    const [settingsData, setSettingsData] = useState({
+        isValveOpen: false,
+        isCollectingData: true,
+        dataIntervalSeconds: 10
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -129,8 +138,54 @@ function DeviceManagementPage() {
         setAssignData({ userId: '' });
     };
 
+    const handleConfigureDevice = async (device) => {
+        setConfiguringDevice(device);
+        try {
+            const settings = await deviceAPI.getDeviceSettings(device.id);
+            setSettingsData({
+                isValveOpen: settings.isValveOpen,
+                isCollectingData: settings.isCollectingData,
+                dataIntervalSeconds: settings.dataIntervalSeconds
+            });
+        } catch (err) {
+            console.error('Error fetching device settings:', err);
+            setError('Không thể tải cài đặt thiết bị');
+        }
+    };
+
+    const handleUpdateSettings = async (e) => {
+        e.preventDefault();
+        try {
+            setSubmitting(true);
+            setError('');
+            await deviceAPI.updateDeviceSettings(configuringDevice.id, settingsData);
+            setConfiguringDevice(null);
+            setSettingsData({
+                isValveOpen: false,
+                isCollectingData: true,
+                dataIntervalSeconds: 10
+            });
+            fetchDevices(); // Refresh list
+        } catch (err) {
+            console.error('Error updating device settings:', err);
+            setError('Không thể cập nhật cài đặt thiết bị');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-64">Đang tải...</div>;
+    }
+
+    if (!isAdmin) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    Bạn không có quyền truy cập trang này. Chỉ ADMIN mới có thể quản lý thiết bị.
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -186,6 +241,12 @@ function DeviceManagementPage() {
                                         className="text-green-600 hover:text-green-900 mr-2"
                                     >
                                         Phân quyền
+                                    </button>
+                                    <button
+                                        onClick={() => handleConfigureDevice(device)}
+                                        className="text-blue-600 hover:text-blue-900 mr-2"
+                                    >
+                                        Cấu hình
                                     </button>
                                     <button
                                         onClick={() => handleDeleteDevice(device.id)}
@@ -335,6 +396,70 @@ function DeviceManagementPage() {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Configure Device Modal */}
+            {configuringDevice && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div className="mt-3">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Cấu hình thiết bị: {configuringDevice.name}</h3>
+                            <form onSubmit={handleUpdateSettings}>
+                                <div className="mb-4">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={settingsData.isValveOpen}
+                                            onChange={(e) => setSettingsData({ ...settingsData, isValveOpen: e.target.checked })}
+                                            className="mr-2"
+                                        />
+                                        Mở van
+                                    </label>
+                                </div>
+                                <div className="mb-4">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={settingsData.isCollectingData}
+                                            onChange={(e) => setSettingsData({ ...settingsData, isCollectingData: e.target.checked })}
+                                            className="mr-2"
+                                        />
+                                        Thu thập dữ liệu
+                                    </label>
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Khoảng thời gian thu thập (giây)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={settingsData.dataIntervalSeconds}
+                                        onChange={(e) => setSettingsData({ ...settingsData, dataIntervalSeconds: parseInt(e.target.value) })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfiguringDevice(null)}
+                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        {submitting ? 'Đang cập nhật...' : 'Cập nhật'}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
