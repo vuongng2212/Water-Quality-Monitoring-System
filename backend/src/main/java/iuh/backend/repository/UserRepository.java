@@ -12,4 +12,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     List<User> findByFactory(iuh.backend.model.Factory factory);
     Optional<User> findByIdAndFactoryId(Long id, Long factoryId);
+    List<User> findByFactoryIdAndRoleIn(Long factoryId, List<iuh.backend.model.enums.Role> roles);
 }

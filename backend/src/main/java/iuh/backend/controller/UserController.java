@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
-@Tag(name = "User Management", description = "APIs cho quản lý người dùng (chỉ dành cho ADMIN)")
+@Tag(name = "User Management", description = "APIs cho quản lý người dùng")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -35,7 +34,8 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping
-    @Operation(summary = "Tạo người dùng mới", description = "Tạo một người dùng mới (chỉ EMPLOYEE) trong nhà máy của admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Tạo người dùng mới", description = "Tạo một người dùng mới trong nhà máy của admin")
     public ResponseEntity<UserDto> createUser(@AuthenticationPrincipal UserDetails currentUser,
                                                @RequestBody CreateUserRequest request) {
         Long factoryId = TenantContext.getTenantId();
@@ -58,6 +58,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lấy danh sách người dùng", description = "Lấy danh sách tất cả người dùng trong nhà máy")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -65,6 +66,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Lấy thông tin người dùng", description = "Lấy thông tin chi tiết một người dùng")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         Long factoryId = TenantContext.getTenantId();
@@ -80,20 +82,45 @@ public class UserController {
     @PutMapping("/{id}")
     @Operation(summary = "Cập nhật người dùng", description = "Cập nhật thông tin người dùng")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
-                                              @RequestBody UpdateUserRequest request) {
+                                              @RequestBody UpdateUserRequest request,
+                                              @AuthenticationPrincipal UserDetails userDetails) {
         Long factoryId = TenantContext.getTenantId();
+        System.out.println("Update user - id: " + id + ", factoryId: " + factoryId + ", currentUser: " + userDetails.getUsername() + ", authorities: " + userDetails.getAuthorities());
         try {
             User user = userRepository.findByIdAndFactoryId(id, factoryId)
                     .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
+            System.out.println("Found user: " + user.getUsername() + ", factory: " + user.getFactory().getId());
 
-            if (request.getUsername() != null) user.setUsername(request.getUsername());
-            if (request.getEmail() != null) user.setEmail(request.getEmail());
-            if (request.getPassword() != null && !request.getPassword().isEmpty()) user.setPassword(passwordEncoder.encode(request.getPassword()));
-            if (request.getRole() != null) user.setRole(request.getRole());
+            // Check if the current user is updating their own profile or is admin
+            boolean isAdmin = userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            boolean isOwnProfile = user.getUsername().equals(userDetails.getUsername());
+            System.out.println("isAdmin: " + isAdmin + ", isOwnProfile: " + isOwnProfile);
+
+            if (!isAdmin && !isOwnProfile) {
+                System.out.println("Forbidden: not admin and not own profile");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            // Non-admin users can only update their own email and username
+            if (!isAdmin && isOwnProfile) {
+                if (request.getUsername() != null) user.setUsername(request.getUsername());
+                if (request.getEmail() != null) user.setEmail(request.getEmail());
+                // Cannot change password or role
+                System.out.println("Updating own profile: username=" + request.getUsername() + ", email=" + request.getEmail());
+            } else {
+                // Admin can update everything
+                if (request.getUsername() != null) user.setUsername(request.getUsername());
+                if (request.getEmail() != null) user.setEmail(request.getEmail());
+                if (request.getPassword() != null && !request.getPassword().isEmpty()) user.setPassword(passwordEncoder.encode(request.getPassword()));
+                if (request.getRole() != null) user.setRole(request.getRole());
+                System.out.println("Admin updating user");
+            }
 
             userRepository.save(user);
             return ResponseEntity.ok(convertToDto(user));
         } catch (RuntimeException e) {
+            System.out.println("Exception: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
@@ -128,6 +155,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Xóa người dùng", description = "Xóa một người dùng")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Long factoryId = TenantContext.getTenantId();
