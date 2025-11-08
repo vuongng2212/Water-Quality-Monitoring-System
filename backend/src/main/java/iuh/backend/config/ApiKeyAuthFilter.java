@@ -1,5 +1,15 @@
 package iuh.backend.config;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Optional;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
 import iuh.backend.model.Device;
 import iuh.backend.repository.DeviceRepository;
 import jakarta.servlet.FilterChain;
@@ -7,15 +17,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -38,12 +39,25 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         if (deviceOptional.isPresent()) {
             Device device = deviceOptional.get();
+            System.out.println("API Key valid for device: " + device.getId() + ", factory: " + (device.getFactory() != null ? device.getFactory().getId() : "null"));
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     device, null, new ArrayList<>());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Set tenant context for multi-tenancy
+            if (device.getFactory() != null) {
+                TenantContext.setTenantId(device.getFactory().getId());
+            }
+        } else {
+            System.out.println("Invalid API key: " + apiKey);
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            // Clear tenant context after request processing
+            TenantContext.clear();
+        }
     }
 }
