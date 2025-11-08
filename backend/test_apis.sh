@@ -7,7 +7,7 @@ echo "--- 1. Logging in as admin ---"
 TOKEN_RESPONSE=$(curl -s -X POST http://localhost:8080/api/auth/login \
 -H "Content-Type: application/json" \
 -d '{
-    "username": "admin",
+    "username": "adminA",
     "password": "admin"
 }')
 

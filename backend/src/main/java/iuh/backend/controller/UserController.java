@@ -4,10 +4,13 @@ import iuh.backend.config.TenantContext;
 import iuh.backend.model.Factory;
 import iuh.backend.model.User;
 import iuh.backend.payload.request.CreateUserRequest;
+import iuh.backend.payload.request.ChangePasswordRequest;
 import iuh.backend.payload.request.UpdateUserRequest;
 import iuh.backend.payload.response.UserDto;
 import iuh.backend.repository.FactoryRepository;
 import iuh.backend.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "User Management", description = "APIs cho quản lý người dùng (chỉ dành cho ADMIN)")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -31,6 +35,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping
+    @Operation(summary = "Tạo người dùng mới", description = "Tạo một người dùng mới (chỉ EMPLOYEE) trong nhà máy của admin")
     public ResponseEntity<UserDto> createUser(@AuthenticationPrincipal UserDetails currentUser,
                                                @RequestBody CreateUserRequest request) {
         Long factoryId = TenantContext.getTenantId();
@@ -53,12 +58,14 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary = "Lấy danh sách người dùng", description = "Lấy danh sách tất cả người dùng trong nhà máy")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users.stream().map(this::convertToDto).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Lấy thông tin người dùng", description = "Lấy thông tin chi tiết một người dùng")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         Long factoryId = TenantContext.getTenantId();
         try {
@@ -71,6 +78,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Cập nhật người dùng", description = "Cập nhật thông tin người dùng")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
                                               @RequestBody UpdateUserRequest request) {
         Long factoryId = TenantContext.getTenantId();
@@ -90,7 +98,37 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @PutMapping("/{id}/password")
+    @Operation(summary = "Đổi mật khẩu", description = "Đổi mật khẩu cho người dùng")
+    public ResponseEntity<?> changePassword(@PathVariable Long id,
+                                           @RequestBody ChangePasswordRequest request,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        Long factoryId = TenantContext.getTenantId();
+        try {
+            User user = userRepository.findByIdAndFactoryId(id, factoryId)
+                    .orElseThrow(() -> new RuntimeException("User not found or not in the same factory"));
+
+            // Check if the current user is changing their own password or is admin
+            if (!user.getUsername().equals(userDetails.getUsername()) && !userDetails.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            // Verify current password
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mật khẩu hiện tại không đúng");
+            }
+
+            // Update password
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+    @Operation(summary = "Xóa người dùng", description = "Xóa một người dùng")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Long factoryId = TenantContext.getTenantId();
         try {

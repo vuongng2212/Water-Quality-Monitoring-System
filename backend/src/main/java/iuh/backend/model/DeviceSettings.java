@@ -13,7 +13,6 @@ import org.hibernate.annotations.Filter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Filter(name = "tenantFilter", condition = "device.factory_id = :tenantId")
 public class DeviceSettings {
 
     @Id

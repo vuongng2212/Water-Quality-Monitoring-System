@@ -15,5 +15,4 @@
     -   Updated `SensorDataController` to use `PermissionService` for validating employee access to sensor data.
     -   Added new endpoints in `DeviceController` for assigning and unassigning devices to employees by ADMIN users.
     -   Modified the device listing functionality in `DeviceController` and `DeviceService` to return only devices that employees have access to based on their assignments.
--   **Next Steps:** The project is now ready to proceed with implementing device control APIs and API documentation as outlined in Day 7 of the implementation plan, building upon the robust multi-tenancy and employee access control foundations.
--   **Implementation Progress:** The project has completed Days 1-6 of the implementation plan. The system now supports secure user login, token-based authentication, CRUD operations for users and devices, secure sensor data ingestion from ESP devices using API keys, robust data isolation for tenant-specific data access, and fine-grained access control for employees to only access their assigned devices.
+-   **Next Steps:**

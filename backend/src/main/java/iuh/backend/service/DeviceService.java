@@ -9,6 +9,8 @@ import iuh.backend.model.User;
 import iuh.backend.model.User.Role;
 import iuh.backend.payload.request.CreateDeviceRequest;
 import iuh.backend.payload.response.DeviceDto;
+import iuh.backend.payload.response.DeviceSettingsDto;
+import iuh.backend.payload.response.UserDto;
 import iuh.backend.repository.DeviceRepository;
 import iuh.backend.repository.EmployeeDeviceAccessRepository;
 import iuh.backend.repository.FactoryRepository;
@@ -34,6 +36,7 @@ public class DeviceService {
     private final FactoryRepository factoryRepository;
     private final UserRepository userRepository;
     private final EmployeeDeviceAccessRepository employeeDeviceAccessRepository;
+    private final DeviceSettingsService deviceSettingsService;
 
     public DeviceDto createDevice(CreateDeviceRequest request) {
         Long factoryId = TenantContext.getTenantId();
@@ -59,9 +62,13 @@ public class DeviceService {
             User currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("Current user not found: " + userDetails.getUsername()));
 
+            System.out.println("User: " + currentUser.getUsername() + ", Role: " + currentUser.getRole() + ", Factory: " + (currentUser.getFactory() != null ? currentUser.getFactory().getId() : "null"));
+
             // Nếu là ADMIN, trả về tất cả thiết bị trong factory
             if (currentUser.getRole() == Role.ADMIN) {
-                return deviceRepository.findAll().stream()
+                List<Device> devices = deviceRepository.findAll();
+                System.out.println("Found " + devices.size() + " devices");
+                return devices.stream()
                         .map(this::toDto)
                         .collect(Collectors.toList());
             }
@@ -171,11 +178,25 @@ public class DeviceService {
     }
 
     private DeviceDto toDto(Device device) {
+        List<EmployeeDeviceAccess> accesses = employeeDeviceAccessRepository.findByDeviceId(device.getId());
+        List<UserDto> assignedUsers = accesses.stream()
+                .map(access -> UserDto.builder()
+                        .id(access.getUser().getId())
+                        .username(access.getUser().getUsername())
+                        .email(access.getUser().getEmail())
+                        .role(access.getUser().getRole())
+                        .build())
+                .collect(Collectors.toList());
+
+        DeviceSettingsDto settings = deviceSettingsService.getDeviceSettings(device.getId());
+
         return DeviceDto.builder()
                 .id(device.getId())
                 .name(device.getName())
                 .apiKey(device.getApiKey())
                 .factoryId(device.getFactory().getId())
+                .assignedUsers(assignedUsers)
+                .settings(settings)
                 .build();
     }
 }
