@@ -8,10 +8,10 @@ import { sensorDataAPI, deviceAPI } from '@/utils/api.js';
 
 function DashboardPage() {
   const [metrics, setMetrics] = useState({
-    ph: { value: null, label: 'pH', unit: '', standard: '6.0-9.0', icon: '🧪' },
-    temperature: { value: null, label: 'Nhiệt độ', unit: '°C', standard: '20-30°C', icon: '🌡️' },
-    turbidity: { value: null, label: 'Độ đục', unit: 'NTU', updated: null, icon: '💧' },
-    conductivity: { value: null, label: 'Độ dẫn điện', unit: 'µS/cm', updated: null, icon: '⚡' },
+    ph: { value: null, label: 'pH', unit: '', standard: '6.5-8.5', icon: '🧪' },
+    temperature: { value: null, label: 'Nhiệt độ', unit: '°C', standard: '≤30°C', icon: '🌡️' },
+    turbidity: { value: null, label: 'Độ đục', unit: 'NTU', standard: '≤5 NTU', icon: '💧' },
+    conductivity: { value: null, label: 'Độ dẫn điện', unit: 'µS/cm', standard: '≤1000 µS/cm', icon: '⚡' },
   });
   const [devices, setDevices] = useState([]);
   // Lưu lịch sử 20 bản ghi realtime

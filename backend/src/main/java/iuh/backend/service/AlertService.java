@@ -9,7 +9,11 @@ import iuh.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,27 +31,49 @@ public class AlertService {
     private static final double TURBIDITY_MAX = 5.0; // NTU
     private static final double CONDUCTIVITY_MAX = 1000.0; // µS/cm
 
+    // Alert cooldown - không gửi alert cùng loại trong 30 phút
+    private static final int ALERT_COOLDOWN_MINUTES = 30;
+
+    // Track last alert time cho mỗi device và parameter
+    private final Map<String, LocalDateTime> lastAlertTimes = new HashMap<>();
+
     public void checkAndSendAlerts(Device device, double ph, double temperature, double turbidity, double conductivity) {
         String deviceName = device.getName();
 
         // Check pH
         if (ph < PH_MIN || ph > PH_MAX) {
-            sendAlertToAssignedUsers(device, "pH", ph, ph < PH_MIN ? PH_MIN : PH_MAX);
+            String alertKey = device.getId() + "-ph";
+            if (shouldSendAlert(alertKey)) {
+                sendAlertToAssignedUsers(device, "pH", ph, ph < PH_MIN ? PH_MIN : PH_MAX);
+                updateLastAlertTime(alertKey);
+            }
         }
 
         // Check temperature
         if (temperature > TEMPERATURE_MAX) {
-            sendAlertToAssignedUsers(device, "Nhiệt độ", temperature, TEMPERATURE_MAX);
+            String alertKey = device.getId() + "-temperature";
+            if (shouldSendAlert(alertKey)) {
+                sendAlertToAssignedUsers(device, "Nhiệt độ", temperature, TEMPERATURE_MAX);
+                updateLastAlertTime(alertKey);
+            }
         }
 
         // Check turbidity
         if (turbidity > TURBIDITY_MAX) {
-            sendAlertToAssignedUsers(device, "Độ đục", turbidity, TURBIDITY_MAX);
+            String alertKey = device.getId() + "-turbidity";
+            if (shouldSendAlert(alertKey)) {
+                sendAlertToAssignedUsers(device, "Độ đục", turbidity, TURBIDITY_MAX);
+                updateLastAlertTime(alertKey);
+            }
         }
 
         // Check conductivity
         if (conductivity > CONDUCTIVITY_MAX) {
-            sendAlertToAssignedUsers(device, "Độ dẫn điện", conductivity, CONDUCTIVITY_MAX);
+            String alertKey = device.getId() + "-conductivity";
+            if (shouldSendAlert(alertKey)) {
+                sendAlertToAssignedUsers(device, "Độ dẫn điện", conductivity, CONDUCTIVITY_MAX);
+                updateLastAlertTime(alertKey);
+            }
         }
     }
 
@@ -78,5 +104,19 @@ public class AlertService {
                 System.err.println("Failed to send alert email to: " + user.getEmail() + " - " + e.getMessage());
             }
         }
+    }
+
+    private boolean shouldSendAlert(String alertKey) {
+        LocalDateTime lastAlert = lastAlertTimes.get(alertKey);
+        if (lastAlert == null) {
+            return true; // Chưa từng gửi alert cho parameter này
+        }
+
+        long minutesSinceLastAlert = ChronoUnit.MINUTES.between(lastAlert, LocalDateTime.now());
+        return minutesSinceLastAlert >= ALERT_COOLDOWN_MINUTES;
+    }
+
+    private void updateLastAlertTime(String alertKey) {
+        lastAlertTimes.put(alertKey, LocalDateTime.now());
     }
 }

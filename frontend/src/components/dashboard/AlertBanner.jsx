@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-// Define thresholds for alerts
+// Define thresholds matching backend AlertService
 const thresholds = {
-  ph: { min: 6.0, max: 9.0 },
-  temperature: { min: 20, max: 30 },
+  ph: { min: 6.5, max: 8.5 },
+  temperature: { max: 30 }, // Celsius - only max threshold
   turbidity: { max: 5 }, // NTU
-  conductivity: { max: 500 } // µS/cm
+  conductivity: { max: 1000 } // µS/cm
 };
 
 function AlertBanner({ metrics = {} }) {
@@ -35,23 +35,14 @@ function AlertBanner({ metrics = {} }) {
       }
     }
 
-    // Check temperature
-    if (metrics.temperature?.value !== null) {
-      if (metrics.temperature.value < thresholds.temperature.min) {
-        newAlerts.push({
-          id: 'temp-low',
-          type: 'warning',
-          message: `Nhiệt độ quá thấp: ${metrics.temperature.value}°C (ngưỡng: ${thresholds.temperature.min}-${thresholds.temperature.max}°C)`,
-          icon: '❄️'
-        });
-      } else if (metrics.temperature.value > thresholds.temperature.max) {
-        newAlerts.push({
-          id: 'temp-high',
-          type: 'danger',
-          message: `Nhiệt độ quá cao: ${metrics.temperature.value}°C (ngưỡng: ${thresholds.temperature.min}-${thresholds.temperature.max}°C)`,
-          icon: '🔥'
-        });
-      }
+    // Check temperature - only max threshold like backend
+    if (metrics.temperature?.value !== null && metrics.temperature.value > thresholds.temperature.max) {
+      newAlerts.push({
+        id: 'temp-high',
+        type: 'danger',
+        message: `Nhiệt độ quá cao: ${metrics.temperature.value}°C (ngưỡng tối đa: ${thresholds.temperature.max}°C)`,
+        icon: '🔥'
+      });
     }
 
     // Check turbidity
