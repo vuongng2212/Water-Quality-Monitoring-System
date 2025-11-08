@@ -159,7 +159,12 @@ const deviceControlAPI = {
   },
 
   setDataInterval: async (deviceId, interval) => {
-    const response = await api.post(`/controls/devices/${deviceId}/interval`, { interval });
+    const response = await api.put(`/controls/devices/${deviceId}/interval`, { interval });
+    return response.data;
+  },
+
+  setCollectingData: async (deviceId, collecting) => {
+    const response = await api.put(`/controls/devices/${deviceId}/collecting`, { collecting });
     return response.data;
   },
 

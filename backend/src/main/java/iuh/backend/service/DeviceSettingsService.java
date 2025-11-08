@@ -39,7 +39,10 @@ public class DeviceSettingsService {
         DeviceSettings settings = deviceSettingsRepository.findByDeviceId(deviceId)
                 .orElseGet(() -> createDefaultSettings(device));
 
-        return toDto(settings);
+        System.out.println("Get settings for deviceId: " + deviceId + ", entity: valveOpen=" + settings.isValveOpen() + ", collectingData=" + settings.isCollectingData() + ", interval=" + settings.getDataIntervalSeconds());
+        DeviceSettingsDto dto = toDto(settings);
+        System.out.println("Get settings DTO: valveOpen=" + dto.isValveOpen() + ", collectingData=" + dto.isCollectingData() + ", interval=" + dto.getDataIntervalSeconds());
+        return dto;
     }
 
     public DeviceSettingsDto updateDeviceSettings(Long deviceId, UpdateDeviceSettingsRequest request) {
@@ -59,15 +62,22 @@ public class DeviceSettingsService {
         DeviceSettings settings = deviceSettingsRepository.findByDeviceId(deviceId)
                 .orElseGet(() -> createDefaultSettings(device));
 
+        System.out.println("Update settings - Before: valveOpen=" + settings.isValveOpen() + ", collectingData=" + settings.isCollectingData() + ", interval=" + settings.getDataIntervalSeconds());
+        System.out.println("Update settings - Request: valveOpen=" + request.isValveOpen() + ", collectingData=" + request.isCollectingData() + ", interval=" + request.getDataIntervalSeconds());
+
         settings.setValveOpen(request.isValveOpen());
         settings.setCollectingData(request.isCollectingData());
         settings.setDataIntervalSeconds(request.getDataIntervalSeconds());
 
         DeviceSettings savedSettings = deviceSettingsRepository.save(settings);
-        System.out.println("Updated device settings for deviceId: " + deviceId + ", new settings: " + toDto(savedSettings));
+        System.out.println("Update settings - After save: valveOpen=" + savedSettings.isValveOpen() + ", collectingData=" + savedSettings.isCollectingData() + ", interval=" + savedSettings.getDataIntervalSeconds());
+
         entityManager.flush();
         entityManager.clear();
-        return toDto(savedSettings);
+
+        DeviceSettingsDto dto = toDto(savedSettings);
+        System.out.println("Update settings - DTO: valveOpen=" + dto.isValveOpen() + ", collectingData=" + dto.isCollectingData() + ", interval=" + dto.getDataIntervalSeconds());
+        return dto;
     }
 
     public DeviceSettingsDto controlValve(Long deviceId, boolean open) {
@@ -90,6 +100,33 @@ public class DeviceSettingsService {
         settings.setValveOpen(open);
 
         DeviceSettings savedSettings = deviceSettingsRepository.save(settings);
+        entityManager.flush();
+        entityManager.clear();
+        return toDto(savedSettings);
+    }
+
+    public DeviceSettingsDto setCollectingData(Long deviceId, boolean collecting) {
+        Long factoryId = TenantContext.getTenantId();
+        if (factoryId == null) {
+            throw new IllegalStateException("Factory ID not found in tenant context.");
+        }
+
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new RuntimeException("Device not found with ID: " + deviceId));
+
+        // Verify device belongs to current factory
+        if (!device.getFactory().getId().equals(factoryId)) {
+            throw new RuntimeException("Device does not belong to current factory");
+        }
+
+        DeviceSettings settings = deviceSettingsRepository.findByDeviceId(deviceId)
+                .orElseGet(() -> createDefaultSettings(device));
+
+        settings.setCollectingData(collecting);
+
+        DeviceSettings savedSettings = deviceSettingsRepository.save(settings);
+        entityManager.flush();
+        entityManager.clear();
         return toDto(savedSettings);
     }
 
@@ -113,6 +150,8 @@ public class DeviceSettingsService {
         settings.setDataIntervalSeconds(interval);
 
         DeviceSettings savedSettings = deviceSettingsRepository.save(settings);
+        entityManager.flush();
+        entityManager.clear();
         return toDto(savedSettings);
     }
 
