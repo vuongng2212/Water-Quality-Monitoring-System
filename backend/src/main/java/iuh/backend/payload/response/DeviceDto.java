@@ -1,5 +1,7 @@
 package iuh.backend.payload.response;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,4 +12,6 @@ public class DeviceDto {
     private String name;
     private String apiKey;
     private Long factoryId;
+    private List<UserDto> assignedUsers;
+    private DeviceSettingsDto settings;
 }
