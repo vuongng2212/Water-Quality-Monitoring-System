@@ -25,6 +25,7 @@ Kiến trúc đa người dùng đảm bảo rằng dữ liệu của mỗi nhà
     - **Thiết bị IoT:** Mỗi thiết bị được cấp một `API Key` duy nhất để xác thực và gửi dữ liệu.
 - **Quản lý Thiết bị:** `ADMIN` có thể thực hiện các thao tác CRUD (Tạo, Đọc, Cập nhật, Xóa) trên các thiết bị thuộc nhà máy của mình.
 - **Thu thập Dữ liệu Cảm biến:** Tiếp nhận và lưu trữ dữ liệu (pH, nhiệt độ, độ đục, v.v.) được gửi từ các thiết bị IoT.
+- **Cảnh báo Email:** Tự động gửi email cảnh báo cho ADMIN và EMPLOYEE khi các thông số chất lượng nước vượt ngưỡng cho phép.
 
 ## 3. Kiến trúc & Công nghệ
 
@@ -64,15 +65,19 @@ Kiến trúc đa người dùng đảm bảo rằng dữ liệu của mỗi nhà
     # JWT Secret Key
     jwt.secret=your-super-secret-key-that-is-long-and-secure-and-does-not-contain-hyphens
 
-    # Mail Sender (for future use)
-    # spring.mail.host=smtp.example.com
-    # spring.mail.port=587
-    # spring.mail.username=your-email
-    # spring.mail.password=your-password
-    # spring.mail.properties.mail.smtp.auth=true
-    # spring.mail.properties.mail.smtp.starttls.enable=true
+    # Email Configuration (SMTP) - Required for alert notifications
+    spring.mail.host=smtp.gmail.com
+    spring.mail.port=587
+    spring.mail.username=your-email@gmail.com
+    spring.mail.password=your-app-password
+    spring.mail.properties.mail.smtp.auth=true
+    spring.mail.properties.mail.smtp.starttls.enable=true
+    spring.mail.properties.mail.smtp.starttls.required=true
+    spring.mail.properties.mail.smtp.connectiontimeout=5000
+    spring.mail.properties.mail.smtp.timeout=5000
+    spring.mail.properties.mail.smtp.writetimeout=5000
     ```
-    *Lưu ý: Thay đổi `jwt.secret` thành một chuỗi bí mật của riêng bạn.*
+    *Lưu ý: Thay đổi `jwt.secret` thành một chuỗi bí mật của riêng bạn. Đối với email, nếu dùng Gmail, cần tạo App Password thay vì mật khẩu thông thường.*
 
 3.  **Khởi chạy Cơ sở dữ liệu:**
     Dự án đã có sẵn tệp `docker-compose.yml` để khởi tạo một container MariaDB. Chạy lệnh sau từ thư mục gốc của backend:

@@ -6,7 +6,7 @@ import iuh.backend.model.EmployeeDeviceAccess;
 import iuh.backend.model.EmployeeDeviceAccessId;
 import iuh.backend.model.Factory;
 import iuh.backend.model.User;
-import iuh.backend.model.User.Role;
+import iuh.backend.model.enums.Role;
 import iuh.backend.payload.request.CreateDeviceRequest;
 import iuh.backend.payload.response.DeviceDto;
 import iuh.backend.payload.response.DeviceSettingsDto;

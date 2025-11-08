@@ -32,7 +32,7 @@ public class DataSeeder implements CommandLineRunner {
             adminA.setUsername("adminA");
             adminA.setPassword(passwordEncoder.encode("admin"));
             adminA.setEmail("adminA@example.com");
-            adminA.setRole(User.Role.ADMIN);
+            adminA.setRole(Role.ADMIN);
             adminA.setFactory(factoryA);
             userRepository.save(adminA);
 
@@ -41,7 +41,7 @@ public class DataSeeder implements CommandLineRunner {
             employeeA.setUsername("employeeA");
             employeeA.setPassword(passwordEncoder.encode("employee"));
             employeeA.setEmail("employeeA@example.com");
-            employeeA.setRole(User.Role.EMPLOYEE);
+            employeeA.setRole(Role.EMPLOYEE);
             employeeA.setFactory(factoryA);
             userRepository.save(employeeA);
 
@@ -56,7 +56,7 @@ public class DataSeeder implements CommandLineRunner {
             adminB.setUsername("adminB");
             adminB.setPassword(passwordEncoder.encode("admin"));
             adminB.setEmail("adminB@example.com");
-            adminB.setRole(User.Role.ADMIN);
+            adminB.setRole(Role.ADMIN);
             adminB.setFactory(factoryB);
             userRepository.save(adminB);
 
@@ -65,7 +65,7 @@ public class DataSeeder implements CommandLineRunner {
             employeeB.setUsername("employeeB");
             employeeB.setPassword(passwordEncoder.encode("employee"));
             employeeB.setEmail("employeeB@example.com");
-            employeeB.setRole(User.Role.EMPLOYEE);
+            employeeB.setRole(Role.EMPLOYEE);
             employeeB.setFactory(factoryB);
             userRepository.save(employeeB);
 
