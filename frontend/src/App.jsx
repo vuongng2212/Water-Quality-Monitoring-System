@@ -46,7 +46,12 @@ function DashboardRoutes() {
 }
 
 function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a proper loading component
+  }
+
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 

@@ -2,8 +2,9 @@ import axios from 'axios';
 import { getCookie } from './cookies';
 import { deleteCookie } from './cookies';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080') + '/api';
 
+console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
 console.log('API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
@@ -29,8 +30,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
+      console.log('API Error:', error.response.status, error.config.url);
       // Xóa token và chuyển hướng về trang đăng nhập
-      deleteCookie('token');
+      // deleteCookie('token'); // Temporarily comment out to debug
       // window.location.href = '/login'; // Tạm tắt redirect để debug
     }
     return Promise.reject(error);
