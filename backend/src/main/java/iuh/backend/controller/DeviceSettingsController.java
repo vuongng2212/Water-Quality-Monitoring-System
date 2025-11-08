@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/devices/{deviceId}/settings")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Device Settings", description = "APIs cho quản lý cài đặt thiết bị")
 public class DeviceSettingsController {
 
     private final DeviceSettingsService deviceSettingsService;
 
         @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Lấy cài đặt thiết bị", description = "Lấy cài đặt hiện tại của thiết bị")
     public ResponseEntity<DeviceSettingsDto> getDeviceSettings(@PathVariable Long deviceId) {
         DeviceSettingsDto settings = deviceSettingsService.getDeviceSettings(deviceId);
@@ -30,6 +30,7 @@ public class DeviceSettingsController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cập nhật cài đặt thiết bị", description = "Cập nhật cài đặt cho thiết bị")
     public ResponseEntity<DeviceSettingsDto> updateDeviceSettings(
             @PathVariable Long deviceId,

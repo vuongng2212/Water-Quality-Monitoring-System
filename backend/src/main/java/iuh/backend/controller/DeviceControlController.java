@@ -12,16 +12,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/controls/devices/{deviceId}")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Device Control", description = "APIs cho điều khiển thiết bị")
 public class DeviceControlController {
 
     private final DeviceSettingsService deviceSettingsService;
 
     @PostMapping("/valve")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     @Operation(summary = "Điều khiển van nước", description = "Mở hoặc đóng van nước của thiết bị")
     public ResponseEntity<DeviceSettingsDto> controlValve(
             @PathVariable Long deviceId,
@@ -30,12 +32,21 @@ public class DeviceControlController {
         return ResponseEntity.ok(updatedSettings);
     }
 
-    @PostMapping("/interval")
-    @Operation(summary = "Thiết lập khoảng thời gian thu thập dữ liệu", description = "Thiết lập khoảng thời gian thu thập dữ liệu cho thiết bị")
-    public ResponseEntity<DeviceSettingsDto> setDataInterval(
-            @PathVariable Long deviceId,
-            @Valid @RequestBody DataIntervalRequest request) {
-        DeviceSettingsDto updatedSettings = deviceSettingsService.setDataInterval(deviceId, request.getInterval());
-        return ResponseEntity.ok(updatedSettings);
+    @PutMapping("/interval")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    @Operation(summary = "Cập nhật khoảng thời gian gửi dữ liệu", description = "Cập nhật khoảng thời gian gửi dữ liệu của thiết bị")
+    public ResponseEntity<DeviceSettingsDto> setDataInterval(@PathVariable Long deviceId, @RequestBody Map<String, Integer> request) {
+        int interval = request.get("interval");
+        DeviceSettingsDto settings = deviceSettingsService.setDataInterval(deviceId, interval);
+        return ResponseEntity.ok(settings);
+    }
+
+    @PutMapping("/collecting")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    @Operation(summary = "Cập nhật trạng thái thu thập dữ liệu", description = "Bật/tắt thu thập dữ liệu của thiết bị")
+    public ResponseEntity<DeviceSettingsDto> setCollectingData(@PathVariable Long deviceId, @RequestBody Map<String, Boolean> request) {
+        boolean collecting = request.get("collecting");
+        DeviceSettingsDto settings = deviceSettingsService.setCollectingData(deviceId, collecting);
+        return ResponseEntity.ok(settings);
     }
 }
