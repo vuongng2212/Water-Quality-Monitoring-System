@@ -3,10 +3,13 @@
 // Yêu cầu: Node.js v18 trở lên
 
 // --- Cấu hình ---
-const API_URL = 'http://localhost:8080/api/sensor-data';
-const API_KEY = '7fbfa558-6a4f-4690-b052-d7d62b7ffbfe'; // Dễ dàng thay đổi
-const INTERVAL_MS = 10000; // 10 giây
+const API_URL = 'http://localhost:8081/api/sensor-data';
+const API_KEY = '9fccf562-2e40-492b-9370-0fb4ca2ed522'; // Dễ dàng thay đổi
+const INTERVAL_MS = 10000; // 10 giây - sẽ được cập nhật từ settings
 // --- Kết thúc cấu hình ---
+
+let currentSettings = null;
+let intervalId = null;
 
 /**
  * Hàm trợ giúp tạo số ngẫu nhiên trong một khoảng
@@ -33,22 +36,71 @@ function getMockSensorData() {
 }
 
 /**
+ * Fetch device settings từ backend
+ */
+async function fetchDeviceSettings() {
+    try {
+        const response = await fetch(`http://localhost:8081/api/device/settings?t=${Date.now()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-KEY': API_KEY,
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        if (response.ok) {
+            currentSettings = await response.json();
+            console.log(`[${new Date().toISOString()}] 📡 Đã cập nhật settings:`, currentSettings);
+
+            // Cập nhật interval nếu thay đổi
+            const newInterval = currentSettings.dataIntervalSeconds * 1000;
+            if (newInterval !== INTERVAL_MS && intervalId) {
+                console.log(`[${new Date().toISOString()}] ⏱️ Thay đổi interval từ ${INTERVAL_MS}ms thành ${newInterval}ms`);
+                clearInterval(intervalId);
+                intervalId = setInterval(sendSensorData, newInterval);
+                INTERVAL_MS = newInterval; // Update INTERVAL_MS to avoid unnecessary clears
+            }
+
+            return currentSettings;
+        } else {
+            console.error(`[${new Date().toISOString()}] ❌ Lỗi fetch settings: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`[${new Date().toISOString()}] Chi tiết lỗi: ${errorText}`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`[${new Date().toISOString()}] ⛔ Lỗi mạng khi fetch settings:`, error.message);
+        return null;
+    }
+}
+
+/**
  * Hàm chính để gửi dữ liệu (ĐÃ CẬP NHẬT để xử lý 201)
  */
 async function sendSensorData() {
     const data = getMockSensorData();
     const timestamp = new Date().toISOString();
 
-    console.log(`[${timestamp}] ⬆️ Đang gửi dữ liệu:`, JSON.stringify(data));
+    console.log(`[${timestamp}] 🔍 Current settings trước khi gửi:`, currentSettings);
+
+    // Thêm currentSettings vào payload
+    const payload = {
+        ...data,
+        currentSettings: currentSettings
+    };
+
+    console.log(`[${timestamp}] ⬆️ Đang gửi dữ liệu:`, JSON.stringify(payload));
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(`${API_URL}?t=${Date.now()}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-KEY': API_KEY
+                'X-API-KEY': API_KEY,
+                'Cache-Control': 'no-cache'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(payload)
         });
 
         if (response.ok) { // response.ok là true cho mã 201
@@ -83,15 +135,29 @@ async function sendSensorData() {
     }
 }
 // --- Khởi động ---
-console.log(`🚀 Khởi động script gửi dữ liệu giả lập IoT...`);
-console.log(`📡 URL: ${API_URL}`);
-console.log(`🔑 API Key: ${API_KEY.substring(0, 10)}...`);
-console.log(`⏱️  Khoảng thời gian: ${INTERVAL_MS / 1000} giây`);
-console.log(`📊 Dữ liệu sẽ được gửi lặp lại mỗi ${INTERVAL_MS / 1000} giây.`);
+async function startSimulation() {
+    console.log(`🚀 Khởi động script gửi dữ liệu giả lập IoT...`);
+    console.log(`📡 URL: ${API_URL}`);
+    console.log(`🔑 API Key: ${API_KEY.substring(0, 10)}...`);
 
-// Gửi ngay lần đầu tiên khi chạy
-console.log(`\n📤 Gửi lần đầu tiên...`);
-sendSensorData();
+    // Fetch initial settings
+    console.log(`\n⚙️ Đang tải cài đặt thiết bị...`);
+    await fetchDeviceSettings();
 
-// Thiết lập gửi lặp lại mỗi 10 giây
-setInterval(sendSensorData, INTERVAL_MS);
+    // Gửi lần đầu tiên
+    console.log(`\n📤 Gửi lần đầu tiên...`);
+    await sendSensorData();
+
+    // Thiết lập gửi lặp lại
+    const currentInterval = currentSettings ? currentSettings.dataIntervalSeconds * 1000 : INTERVAL_MS;
+    console.log(`⏱️ Khoảng thời gian: ${currentInterval / 1000} giây`);
+    console.log(`📊 Dữ liệu sẽ được gửi lặp lại mỗi ${currentInterval / 1000} giây.`);
+
+    intervalId = setInterval(async () => {
+        // Fetch settings mỗi lần gửi để cập nhật
+        await fetchDeviceSettings();
+        await sendSensorData();
+    }, currentInterval);
+}
+
+startSimulation().catch(console.error);
