@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping("/api/sensor-data")
@@ -61,20 +63,29 @@ public class SensorDataController {
     @Operation(summary = "Lấy lịch sử dữ liệu cảm biến", description = "Lấy lịch sử dữ liệu của một thiết bị cụ thể (yêu cầu JWT)")
     public ResponseEntity<Page<SensorDataDto>> getSensorDataHistory(
             @Parameter(description = "ID của thiết bị") @PathVariable Long deviceId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(defaultValue = "100") int limit,
             Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
         // Kiểm tra quyền truy cập thiết bị
         permissionService.validateDeviceAccess(userDetails, deviceId);
         
-    // Luôn trả về dữ liệu mới nhất: sort DESC theo timestamp (nếu không có thì sort theo id)
-    Pageable sortedPageable = org.springframework.data.domain.PageRequest.of(
-        pageable.getPageNumber(),
-        pageable.getPageSize(),
-        org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp")
-    );
-    Page<SensorData> history = sensorDataRepository.findByDeviceId(deviceId, sortedPageable);
+        Page<SensorData> history;
+        Pageable queryPageable;
+        if (startDate != null && endDate != null) {
+            LocalDateTime start = LocalDateTime.parse(startDate + "T00:00:00");
+            LocalDateTime end = LocalDateTime.parse(endDate + "T23:59:59");
+            queryPageable = org.springframework.data.domain.PageRequest.of(0, limit, 
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp"));
+            history = sensorDataRepository.findByDeviceIdAndTimestampBetween(deviceId, start, end, queryPageable);
+        } else {
+            queryPageable = org.springframework.data.domain.PageRequest.of(0, limit, 
+                org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp"));
+            history = sensorDataRepository.findByDeviceId(deviceId, queryPageable);
+        }
         
-        System.out.println("[SENSOR_DATA_HISTORY] Device " + deviceId + ", page=" + pageable.getPageNumber() + ", size=" + pageable.getPageSize() + 
+        System.out.println("[SENSOR_DATA_HISTORY] Device " + deviceId + ", startDate=" + startDate + ", endDate=" + endDate + ", limit=" + limit + 
                           ", totalElements=" + history.getTotalElements() + ", totalPages=" + history.getTotalPages());
         
         if (!history.getContent().isEmpty()) {
