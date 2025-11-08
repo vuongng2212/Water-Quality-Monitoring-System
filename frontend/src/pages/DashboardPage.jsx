@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ViewControls from '../components/dashboard/ViewControls';
 import AlertBanner from '../components/dashboard/AlertBanner';
 import MetricCard from '../components/dashboard/MetricCard';
 import RealtimeChart from '../components/dashboard/RealtimeChart';
@@ -147,7 +146,6 @@ function DashboardPage() {
 
   return (
     <div>
-      <ViewControls />
       <AlertBanner metrics={metrics} />
 
       <h2 id="dashboard-title" className="text-2xl font-bold text-gray-800 mb-4">Dashboard Tổng quan</h2>
