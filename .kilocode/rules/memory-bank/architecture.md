@@ -14,6 +14,11 @@
 -   **Authentication:**
     -   **Users:** JSON Web Tokens (JWT) are used for user authentication. The JWT payload includes the `user_id`, `role`, and `factory_id`, which are crucial for enforcing access control and data isolation.
     -   **Devices:** IoT devices (ESP) are authenticated using a unique API Key associated with each registered device.
+-   **Authorization:**
+    -   **Users:** Role-based access control (RBAC) is enforced using Spring Security's `@PreAuthorize` annotations (e.g., `hasRole('ADMIN')`). User permissions are derived from their `role` field.
+    -   **Devices:** API Key-based authentication is handled by a dedicated `ApiKeyAuthFilter`. Successful authentication loads the corresponding `Device` entity into the security context for use by controllers.
+-   **Security Filter Chain:**
+    -   The Spring Security filter chain is configured to handle both JWT and API Key authentication. The `ApiKeyAuthFilter` is placed before the standard `UsernamePasswordAuthenticationFilter` to ensure device requests are processed correctly before JWT validation occurs.
 -   **Real-time Updates:** The system uses **HTTP Polling** as the initial mechanism for near real-time updates on the frontend. This was chosen for its simplicity and ease of implementation with a standard REST API.
 
 ## 3. Database Schema Overview

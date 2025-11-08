@@ -8,8 +8,7 @@ This document outlines the technologies, development setup, and technical constr
     -   **Language/Framework:** Java 17, Spring Boot
     -   **Rationale:** A robust, widely-used framework for building secure and high-performance RESTful APIs. It provides a solid structure for features like security, data access, and scheduled tasks.
 -   **Frontend:**
-    -   **Language/Framework:** TypeScript, Next.js (React)
-    -   **Rationale:** A modern React framework that enables server-side rendering (SSR) for better performance and a rich user experience. TypeScript adds static typing for improved code quality and maintainability.
+    -   **Language/Framework:** Javascript, React vite
 -   **Database:**
     -   **System:** MariaDB
     -   **Rationale:** An open-source, relational database management system (RDBMS) that is highly compatible with MySQL. It ensures data integrity and consistency, which is crucial for a multi-tenant application.
