@@ -4,7 +4,9 @@ import MetricCard from '../components/dashboard/MetricCard';
 import RealtimeChart from '../components/dashboard/RealtimeChart';
 import DeviceControl from '../components/dashboard/DeviceControl';
 import LatestDataTable from '../components/dashboard/LatestDataTable';
+import Card from '../components/ui/Card';
 import { sensorDataAPI, deviceAPI } from '@/utils/api.js';
+import { theme } from '../utils/theme';
 
 function DashboardPage() {
   const [metrics, setMetrics] = useState({
@@ -145,94 +147,124 @@ function DashboardPage() {
 
 
   return (
-    <div>
+    <div className={`${theme.spacing.page} ${theme.spacing.section}`}>
       <AlertBanner metrics={metrics} />
 
-      <h2 id="dashboard-title" className="text-2xl font-bold text-gray-800 mb-4">Dashboard Tổng quan</h2>
-
-      {/* Sync Status */}
-      <div className="mb-4 flex items-center space-x-4 text-sm text-gray-600">
-        <div className="flex items-center space-x-2">
-          <span className={isOnline ? 'text-green-500' : 'text-red-500'}>
-            {isOnline ? '🟢' : '🔴'} {isOnline ? 'Online' : 'Offline'}
-          </span>
-        </div>
-        {syncing ? (
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-            <span>Đang đồng bộ...</span>
-          </div>
-        ) : (
-          <span>✅ Đồng bộ thành công</span>
-        )}
-        {lastSyncTime && <span>Lần cuối: {lastSyncTime}</span>}
+      <div className="mb-8">
+        <h1 className={`${theme.typography.h1} mb-2`}>Dashboard Tổng quan</h1>
+        <p className={`${theme.typography.body} text-gray-600`}>
+          Giám sát chất lượng nước thời gian thực
+        </p>
       </div>
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded flex justify-between items-center">
-          <span>{error}</span>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => window.location.reload()}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Thử lại
-            </button>
-            <button
-              onClick={() => setError(null)}
-              className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Đóng
-            </button>
+      {/* Sync Status */}
+      <Card className="mb-6">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <div className="flex items-center space-x-2">
+            <span className={isOnline ? 'text-green-500' : 'text-red-500'}>
+              {isOnline ? '🟢' : '🔴'} {isOnline ? 'Online' : 'Offline'}
+            </span>
           </div>
+          {syncing ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500"></div>
+              <span className="text-gray-600">Đang đồng bộ...</span>
+            </div>
+          ) : (
+            <span className="text-green-600">✅ Đồng bộ thành công</span>
+          )}
+          {lastSyncTime && (
+            <span className="text-gray-500">Lần cuối: {lastSyncTime}</span>
+          )}
         </div>
+      </Card>
+
+      {error && (
+        <Card className="mb-6 border-red-200 bg-red-50">
+          <div className="flex justify-between items-center">
+            <span className="text-red-700">{error}</span>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Thử lại
+              </button>
+              <button
+                onClick={() => setError(null)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </Card>
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
+        <Card className="flex justify-center items-center py-16">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+            <p className="text-gray-600">Đang tải dữ liệu...</p>
+          </div>
+        </Card>
       ) : (
         <>
           {/* Real-time Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <MetricCard data={metrics.ph} />
-            <MetricCard data={metrics.temperature} />
-            <MetricCard data={metrics.turbidity} />
-            <MetricCard data={metrics.conductivity} />
+          <div className="mb-8">
+            <h2 className={`${theme.typography.h2} mb-6`}>Chỉ số thời gian thực</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <MetricCard data={metrics.ph} />
+              <MetricCard data={metrics.temperature} />
+              <MetricCard data={metrics.turbidity} />
+              <MetricCard data={metrics.conductivity} />
+            </div>
           </div>
 
           {/* Charts and Controls */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Điều khiển thiết bị</h3>
-              <DeviceControl devices={devices} />
-            </div>
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Biểu đồ thời gian thực</h3>
-              {historyData && historyData.length > 0 ? (
-                <RealtimeChart data={historyData} />
-              ) : (
-                <div className="flex items-center justify-center h-64 text-gray-500">
-                  {loading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu để hiển thị biểu đồ'}
-                </div>
-              )}
+          <div className="mb-8">
+            <h2 className={`${theme.typography.h2} mb-6`}>Điều khiển & Giám sát</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card>
+                <Card.Header>
+                  <h3 className={theme.typography.h3}>Điều khiển thiết bị</h3>
+                </Card.Header>
+                <Card.Content>
+                  <DeviceControl devices={devices} />
+                </Card.Content>
+              </Card>
+              <Card className="lg:col-span-2">
+                <Card.Header>
+                  <h3 className={theme.typography.h3}>Biểu đồ thời gian thực</h3>
+                </Card.Header>
+                <Card.Content>
+                  {historyData && historyData.length > 0 ? (
+                    <RealtimeChart data={historyData} />
+                  ) : (
+                    <div className="flex items-center justify-center h-64 text-gray-500">
+                      {loading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu để hiển thị biểu đồ'}
+                    </div>
+                  )}
+                </Card.Content>
+              </Card>
             </div>
           </div>
 
           {/* Data Table */}
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Dữ liệu mới nhất</h3>
-            </div>
-            {historyData && historyData.length > 0 ? (
-              <LatestDataTable data={historyData} />
-            ) : (
-              <div className="px-6 py-8 text-center text-gray-500">
-                {loading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu để hiển thị'}
-              </div>
-            )}
-          </div>
+          <Card>
+            <Card.Header>
+              <h2 className={theme.typography.h2}>Dữ liệu mới nhất</h2>
+            </Card.Header>
+            <Card.Content>
+              {historyData && historyData.length > 0 ? (
+                <LatestDataTable data={historyData} />
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {loading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu để hiển thị'}
+                </div>
+              )}
+            </Card.Content>
+          </Card>
         </>
       )}
     </div>

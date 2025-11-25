@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { deviceAPI, userAPI } from '@/utils/api.js';
 import { useAuth } from '../contexts/AuthContext';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Modal from '../components/ui/Modal';
+import { theme } from '../utils/theme';
 
 function DeviceManagementPage() {
     const { user } = useAuth();
@@ -189,77 +194,91 @@ function DeviceManagementPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Quản lý thiết bị</h1>
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                    Thêm thiết bị
-                </button>
+        <div className={`${theme.spacing.page} ${theme.spacing.section}`}>
+            <div className="mb-8">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                        <h1 className={`${theme.typography.h1} mb-2`}>Quản lý thiết bị</h1>
+                        <p className={`${theme.typography.body} text-gray-600`}>
+                            Quản lý và cấu hình các thiết bị giám sát chất lượng nước
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => setShowCreateModal(true)}
+                        className="w-full sm:w-auto"
+                    >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Thêm thiết bị
+                    </Button>
+                </div>
             </div>
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
+                <Card className="mb-6 border-red-200 bg-red-50">
+                    <div className="text-red-700">{error}</div>
+                </Card>
             )}
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full table-auto">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">API Key</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhân viên được phân quyền</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {devices.map((device) => (
-                            <tr key={device.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{device.apiKey}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {device.assignedUsers && device.assignedUsers.length > 0
-                                        ? device.assignedUsers.map(user => user.username).join(', ')
-                                        : 'Chưa phân quyền'
-                                    }
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button
-                                        onClick={() => openEditModal(device)}
-                                        className="text-indigo-600 hover:text-indigo-900 mr-2"
-                                    >
-                                        Sửa
-                                    </button>
-                                    <button
-                                        onClick={() => openAssignModal(device)}
-                                        className="text-green-600 hover:text-green-900 mr-2"
-                                    >
-                                        Phân quyền
-                                    </button>
-                                    <button
-                                        onClick={() => handleConfigureDevice(device)}
-                                        className="text-blue-600 hover:text-blue-900 mr-2"
-                                    >
-                                        Cấu hình
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteDevice(device.id)}
-                                        className="text-red-600 hover:text-red-900"
-                                    >
-                                        Xóa
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <Card>
+                <Card.Content className="p-0">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">API Key</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhân viên được phân quyền</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {devices.map((device) => (
+                                    <tr key={device.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{device.apiKey}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {device.assignedUsers && device.assignedUsers.length > 0
+                                                ? device.assignedUsers.map(user => user.username).join(', ')
+                                                : 'Chưa phân quyền'
+                                            }
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button
+                                                onClick={() => openEditModal(device)}
+                                                className="text-indigo-600 hover:text-indigo-900 mr-2"
+                                            >
+                                                Sửa
+                                            </button>
+                                            <button
+                                                onClick={() => openAssignModal(device)}
+                                                className="text-green-600 hover:text-green-900 mr-2"
+                                            >
+                                                Phân quyền
+                                            </button>
+                                            <button
+                                                onClick={() => handleConfigureDevice(device)}
+                                                className="text-blue-600 hover:text-blue-900 mr-2"
+                                            >
+                                                Cấu hình
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteDevice(device.id)}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                Xóa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </Card.Content>
+            </Card>
 
             {/* Create Device Modal */}
             {showCreateModal && (

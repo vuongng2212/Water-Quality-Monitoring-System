@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { userAPI } from '../utils/api.js';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { theme } from '../utils/theme';
 
 function ProfilePage() {
     const { user } = useAuth();
@@ -89,8 +93,13 @@ function ProfilePage() {
             setLoading(false);
         }
     }; return (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Cài đặt tài khoản</h1>
+        <div className={`${theme.spacing.page} ${theme.spacing.section} max-w-4xl mx-auto`}>
+            <div className="mb-8">
+                <h1 className={`${theme.typography.h1} mb-2`}>Cài đặt tài khoản</h1>
+                <p className={`${theme.typography.body} text-gray-600`}>
+                    Quản lý thông tin cá nhân và bảo mật tài khoản
+                </p>
+            </div>
 
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
@@ -98,8 +107,8 @@ function ProfilePage() {
                     <button
                         onClick={() => setActiveTab('profile')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'profile'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ? 'border-primary-500 text-primary-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Thông tin cá nhân
@@ -107,8 +116,8 @@ function ProfilePage() {
                     <button
                         onClick={() => setActiveTab('password')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'password'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ? 'border-primary-500 text-primary-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Đổi mật khẩu
@@ -117,117 +126,93 @@ function ProfilePage() {
             </div>
 
             {message && (
-                <div className={`p-4 mb-6 rounded-md ${message.includes('thành công') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {message}
-                </div>
+                <Card className={`mb-6 ${message.includes('thành công') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                    <div className={message.includes('thành công') ? 'text-green-700' : 'text-red-700'}>
+                        {message}
+                    </div>
+                </Card>
             )}
 
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Chỉnh sửa thông tin</h2>
-                    <form onSubmit={handleProfileUpdate}>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                                Tên đăng nhập
-                            </label>
-                            <input
-                                id="username"
+                <Card>
+                    <Card.Header>
+                        <h2 className={theme.typography.h2}>Chỉnh sửa thông tin cá nhân</h2>
+                    </Card.Header>
+                    <Card.Content>
+                        <form onSubmit={handleProfileUpdate} className="space-y-4">
+                            <Input
+                                label="Tên đăng nhập"
                                 type="text"
                                 value={profileData.username}
                                 onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 required
                             />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                                Email
-                            </label>
-                            <input
-                                id="email"
+                            <Input
+                                label="Email"
                                 type="email"
                                 value={profileData.email}
                                 onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 required
                             />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Vai trò
-                            </label>
-                            <input
-                                type="text"
-                                value={user?.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                                disabled
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                        >
-                            {loading ? 'Đang cập nhật...' : 'Cập nhật'}
-                        </button>
-                    </form>
-                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Vai trò
+                                </label>
+                                <input
+                                    type="text"
+                                    value={user?.role === 'ADMIN' ? 'Quản trị viên' : 'Nhân viên'}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+                                    disabled
+                                />
+                            </div>
+                            <div className="flex justify-end pt-4">
+                                <Button type="submit" disabled={loading}>
+                                    {loading ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
+                                </Button>
+                            </div>
+                        </form>
+                    </Card.Content>
+                </Card>
             )}
 
             {/* Password Tab */}
             {activeTab === 'password' && (
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Đổi mật khẩu</h2>
-                    <form onSubmit={handlePasswordChange}>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="currentPassword">
-                                Mật khẩu hiện tại
-                            </label>
-                            <input
-                                id="currentPassword"
+                <Card>
+                    <Card.Header>
+                        <h2 className={theme.typography.h2}>Đổi mật khẩu</h2>
+                    </Card.Header>
+                    <Card.Content>
+                        <form onSubmit={handlePasswordChange} className="space-y-4">
+                            <Input
+                                label="Mật khẩu hiện tại"
                                 type="password"
                                 value={passwordData.currentPassword}
                                 onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 required
                             />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="newPassword">
-                                Mật khẩu mới
-                            </label>
-                            <input
-                                id="newPassword"
+                            <Input
+                                label="Mật khẩu mới"
                                 type="password"
                                 value={passwordData.newPassword}
                                 onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 required
                             />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
-                                Xác nhận mật khẩu mới
-                            </label>
-                            <input
-                                id="confirmPassword"
+                            <Input
+                                label="Xác nhận mật khẩu mới"
                                 type="password"
                                 value={passwordData.confirmPassword}
                                 onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 required
                             />
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                        >
-                            {loading ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu'}
-                        </button>
-                    </form>
-                </div>
+                            <div className="flex justify-end pt-4">
+                                <Button type="submit" disabled={loading}>
+                                    {loading ? 'Đang đổi mật khẩu...' : 'Đổi mật khẩu'}
+                                </Button>
+                            </div>
+                        </form>
+                    </Card.Content>
+                </Card>
             )}
         </div>
     );
