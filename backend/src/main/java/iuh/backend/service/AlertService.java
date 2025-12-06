@@ -25,11 +25,11 @@ public class AlertService {
     private final EmployeeDeviceAccessRepository employeeDeviceAccessRepository;
 
     // Thresholds for water quality parameters
-    private static final double PH_MIN = 6.5;
-    private static final double PH_MAX = 8.5;
-    private static final double TEMPERATURE_MAX = 30.0; // Celsius
-    private static final double TURBIDITY_MAX = 5.0; // NTU
-    private static final double CONDUCTIVITY_MAX = 1000.0; // µS/cm
+    private static final double PH_MIN = 5.5;
+    private static final double PH_MAX = 9.0;
+    private static final double TEMPERATURE_MAX = 40.0; // Celsius
+    private static final double TURBIDITY_MAX = 50.0; // NTU
+    private static final double TDS_MAX = 1000.0; // mg/l
 
     // Alert cooldown - không gửi alert cùng loại trong 30 phút
     private static final int ALERT_COOLDOWN_MINUTES = 30;
@@ -37,7 +37,7 @@ public class AlertService {
     // Track last alert time cho mỗi device và parameter
     private final Map<String, LocalDateTime> lastAlertTimes = new HashMap<>();
 
-    public void checkAndSendAlerts(Device device, double ph, double temperature, double turbidity, double conductivity) {
+    public void checkAndSendAlerts(Device device, double ph, double temperature, double turbidity, double tds) {
         String deviceName = device.getName();
 
         // Check pH
@@ -67,11 +67,11 @@ public class AlertService {
             }
         }
 
-        // Check conductivity
-        if (conductivity > CONDUCTIVITY_MAX) {
-            String alertKey = device.getId() + "-conductivity";
+        // Check TDS
+        if (tds > TDS_MAX) {
+            String alertKey = device.getId() + "-tds";
             if (shouldSendAlert(alertKey)) {
-                sendAlertToAssignedUsers(device, "Độ dẫn điện", conductivity, CONDUCTIVITY_MAX);
+                sendAlertToAssignedUsers(device, "Tổng chất rắn hòa tan", tds, TDS_MAX);
                 updateLastAlertTime(alertKey);
             }
         }
