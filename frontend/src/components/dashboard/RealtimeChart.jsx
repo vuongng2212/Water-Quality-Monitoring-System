@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import zoomPlugin from 'chartjs-plugin-zoom';
+import 'chartjs-adapter-date-fns';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +12,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  TimeScale,
 } from 'chart.js';
 
 // Đăng ký plugins
@@ -23,7 +25,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  TimeScale
 );
 
 function RealtimeChart({ data = [] }) {
@@ -33,7 +36,7 @@ function RealtimeChart({ data = [] }) {
     ph: true,
     temperature: true,
     turbidity: true,
-    conductivity: true,
+    tds: true,
   });
 
   const handleFieldToggle = (field) => {
@@ -50,7 +53,6 @@ function RealtimeChart({ data = [] }) {
     if (!safeData || safeData.length === 0) {
       console.log('[REALTIME_CHART] No data available for chart');
       return {
-        labels: [],
         datasets: []
       };
     }
@@ -58,19 +60,14 @@ function RealtimeChart({ data = [] }) {
     // Take last 20 data points for the chart (oldest first for left to right, newest on right)
     const recentData = safeData.slice(-20);
 
-    const labels = recentData.map(item =>
-      new Date(item.timestamp).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
-    );
-
     const datasets = [];
     if (visibleFields.ph) {
       datasets.push({
         label: 'pH',
-        data: recentData.map(item => item.ph),
+        data: recentData.map(item => ({
+          x: new Date(item.timestamp).getTime(),
+          y: item.ph
+        })),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.1,
@@ -80,7 +77,10 @@ function RealtimeChart({ data = [] }) {
     if (visibleFields.temperature) {
       datasets.push({
         label: 'Nhiệt độ (°C)',
-        data: recentData.map(item => item.temperature),
+        data: recentData.map(item => ({
+          x: new Date(item.timestamp).getTime(),
+          y: item.temperature
+        })),
         borderColor: 'rgb(239, 68, 68)',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         tension: 0.1,
@@ -90,17 +90,23 @@ function RealtimeChart({ data = [] }) {
     if (visibleFields.turbidity) {
       datasets.push({
         label: 'Độ đục (NTU)',
-        data: recentData.map(item => item.turbidity),
+        data: recentData.map(item => ({
+          x: new Date(item.timestamp).getTime(),
+          y: item.turbidity
+        })),
         borderColor: 'rgb(245, 158, 11)',
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         tension: 0.1,
         yAxisID: 'y2',
       });
     }
-    if (visibleFields.conductivity) {
+    if (visibleFields.tds) {
       datasets.push({
-        label: 'Độ dẫn điện (µS/cm)',
-        data: recentData.map(item => item.conductivity),
+        label: 'Tổng chất rắn hòa tan (mg/l)',
+        data: recentData.map(item => ({
+          x: new Date(item.timestamp).getTime(),
+          y: item.tds
+        })),
         borderColor: 'rgb(34, 197, 94)',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         tension: 0.1,
@@ -108,7 +114,6 @@ function RealtimeChart({ data = [] }) {
       });
     }
     return {
-      labels,
       datasets,
     };
   }, [data, visibleFields]);
@@ -123,6 +128,21 @@ function RealtimeChart({ data = [] }) {
     },
     stacked: false,
     scales: {
+      x: {
+        type: 'time',
+        time: {
+          displayFormats: {
+            minute: 'dd/MM HH:mm',
+            hour: 'dd/MM HH:mm',
+            day: 'dd/MM',
+          },
+          tooltipFormat: 'dd/MM/yyyy HH:mm:ss',
+        },
+        title: {
+          display: true,
+          text: 'Thời gian'
+        },
+      },
       y: {
         type: 'linear',
         display: true,
@@ -157,7 +177,7 @@ function RealtimeChart({ data = [] }) {
           text: 'Độ đục (NTU)'
         },
         min: 0,
-        max: 10,
+        max: 50,
         grid: {
           drawOnChartArea: false,
         },
@@ -179,14 +199,14 @@ function RealtimeChart({ data = [] }) {
         annotations: {
           phLow: {
             type: 'line',
-            yMin: 6,
-            yMax: 6,
+            yMin: 5.5,
+            yMax: 5.5,
             borderColor: 'rgba(255, 99, 132, 0.8)',
             borderWidth: 2,
             borderDash: [6, 6],
             label: {
               display: true,
-              content: 'Cảnh báo pH thấp (<6)',
+              content: 'Cảnh báo pH thấp (<5.5)',
               position: 'start',
               backgroundColor: 'rgba(255,99,132,0.2)',
               color: 'rgba(255, 99, 132, 1)',
@@ -230,6 +250,7 @@ function RealtimeChart({ data = [] }) {
         },
         callbacks: {
           title: function (context) {
+            // parsed.x giờ là timestamp (number), tạo Date trực tiếp
             const date = new Date(context[0].parsed.x);
             return date.toLocaleString('vi-VN', {
               year: 'numeric',
@@ -258,9 +279,9 @@ function RealtimeChart({ data = [] }) {
             } else if (label.includes('Độ đục')) {
               unit = 'NTU';
               label = 'Độ đục';
-            } else if (label.includes('Độ dẫn điện')) {
-              unit = 'µS/cm';
-              label = 'Độ dẫn điện';
+            } else if (label.includes('Tổng chất rắn hòa tan')) {
+              unit = 'mg/l';
+              label = 'Tổng chất rắn hòa tan';
             }
 
             // Làm nổi bật giá trị mới nhất
@@ -332,8 +353,8 @@ function RealtimeChart({ data = [] }) {
           Độ đục (NTU)
         </label>
         <label className="flex items-center gap-1">
-          <input type="checkbox" checked={visibleFields.conductivity} onChange={() => handleFieldToggle('conductivity')} />
-          Độ dẫn điện (µS/cm)
+          <input type="checkbox" checked={visibleFields.tds} onChange={() => handleFieldToggle('tds')} />
+          Tổng chất rắn hòa tan (mg/l)
         </label>
         <button
           onClick={() => {
