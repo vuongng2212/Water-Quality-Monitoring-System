@@ -3,7 +3,7 @@
 
 $API_URL = 'http://localhost:8081/api/sensor-data'
 $SETTINGS_URL = 'http://localhost:8081/api/device/settings'
-$API_KEY = '9fccf562-2e40-492b-9370-0fb4ca2ed522'
+$API_KEY = 'd8ab63e7-3896-4909-8215-ba43a28edc8d'
 
 Write-Host "Testing backend API..."
 Write-Host "Settings URL: $SETTINGS_URL"

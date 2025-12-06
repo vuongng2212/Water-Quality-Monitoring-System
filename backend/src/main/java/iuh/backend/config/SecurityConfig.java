@@ -37,7 +37,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "https://d9rzs3kz-5173.asse.devtunnels.ms")); // Cho phép tất cả localhost và URL frontend đã deploy
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173", "https://sdrfcqj2-5173.asse.devtunnels.ms")); // Cho phép origins cụ thể
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
