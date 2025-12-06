@@ -33,7 +33,7 @@ Hệ thống giám sát chất lượng nước là một nền tảng SaaS đa 
             "ph": 7.5,
             "temperature": 26.1,
             "turbidity": 1.2,
-            "conductivity": 550
+            "tds": 1.2
         }
         ```
 4.  Backend nhận yêu cầu, xác thực `API Key`.
