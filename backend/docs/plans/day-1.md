@@ -34,7 +34,7 @@
     *   **Tạo `Factory.java`**: `id`, `name`, `address`.
     *   **Tạo `User.java`**: `id`, `username`, `password`, `email`, `role` (Enum: `ADMIN`, `EMPLOYEE`). Mối quan hệ `@ManyToOne` với `Factory`.
     *   **Tạo `Device.java`**: `id`, `name`, `apiKey` (duy nhất). Mối quan hệ `@ManyToOne` với `Factory`.
-    *   **Tạo `SensorData.java`**: `id`, `ph`, `temperature`, `turbidity`, `conductivity`, `timestamp`. Mối quan hệ `@ManyToOne` với `Device`.
+    *   **Tạo `SensorData.java`**: `id`, `ph`, `temperature`, `turbidity`, `tds`, `timestamp`. Mối quan hệ `@ManyToOne` với `Device`.
     *   **Tạo `DeviceSettings.java`**: `id`, `isValveOpen`, `isCollectingData`, `dataIntervalSeconds`. Mối quan hệ `@OneToOne` với `Device`.
     *   **Tạo `EmployeeDeviceAccess.java`**: Sử dụng `@EmbeddedId` cho khóa chính phức hợp gồm `userId` và `deviceId`. Mối quan hệ `@ManyToOne` với `User` và `Device`.
 

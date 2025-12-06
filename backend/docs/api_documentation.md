@@ -166,7 +166,7 @@ Endpoint dành cho thiết bị IoT gửi dữ liệu cảm biến lên hệ th�
   "ph": "double",
   "temperature": "double",
   "turbidity": "double",
-  "conductivity": "double"
+  "tds": "double"
 }
 ```
 
@@ -186,7 +186,7 @@ Lấy lịch sử dữ liệu của một thiết bị cụ thể (yêu cầu JW
       "ph": "double",
       "temperature": "double",
       "turbidity": "double",
-      "conductivity": "double",
+      "tds": "double",
       "timestamp": "datetime",
       "device": "object"
     }

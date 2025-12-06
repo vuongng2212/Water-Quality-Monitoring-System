@@ -111,7 +111,6 @@ Dashboard với biểu đồ thời gian thực
 │  ├── pH Sensor                                                   │
 │  ├── Temperature Sensor                                          │
 │  ├── Turbidity Sensor                                           │
-│  ├── Conductivity Sensor                                        │
 │  └── Water Valve Control                                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -546,8 +545,8 @@ Content-Type: application/json
 {
   "ph": 7.2,
   "temperature": 25.5,
-  "turbidity": 2.3,
-  "conductivity": 650
+  "turbidity": 1.5,
+  "tds": 2.3
 }
 ```
 
@@ -649,9 +648,11 @@ http.begin(apiUrl);
 http.addHeader("Content-Type", "application/json");
 http.addHeader("X-API-KEY", apiKey);
 
-String jsonData = "{\"ph\":7.2,\"temperature\":25.5,\"turbidity\":2.3,\"conductivity\":650}";
+String jsonData = "{\"ph\":7.2,\"temperature\":25.5,\"turbidity\":1.5,\"tds\":2.3}";
 int httpCode = http.POST(jsonData);
 ```
+
+**Lưu ý tương thích ngược:** Backend hỗ trợ cả field `"tds"` và `"turbidity"` trong JSON payload để tương thích với các thiết bị cũ vẫn gửi `"turbidity"`.
 
 ---
 

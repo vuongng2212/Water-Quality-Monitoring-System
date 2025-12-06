@@ -50,16 +50,16 @@ public class SensorDataController {
         sensorData.setPh(request.getPh());
         sensorData.setTemperature(request.getTemperature());
         sensorData.setTurbidity(request.getTurbidity());
-        sensorData.setConductivity(request.getConductivity());
+        sensorData.setTds(request.getTds());
         sensorData.setTimestamp(LocalDateTime.now());
 
         SensorData saved = sensorDataRepository.save(sensorData);
         System.out.println("[SENSOR_DATA] Nhận dữ liệu từ device " + device.getId() + " (" + device.getName() + "): " +
-                          "pH=" + request.getPh() + ", temp=" + request.getTemperature() + ", turbidity=" + request.getTurbidity() + ", conductivity=" + request.getConductivity() +
+                          "pH=" + request.getPh() + ", temp=" + request.getTemperature() + ", turbidity=" + request.getTurbidity() + ", tds=" + request.getTds() +
                           ", timestamp=" + saved.getTimestamp() + ", id=" + saved.getId());
 
         // Check for alerts
-        alertService.checkAndSendAlerts(device, request.getPh(), request.getTemperature(), request.getTurbidity(), request.getConductivity());
+        alertService.checkAndSendAlerts(device, request.getPh(), request.getTemperature(), request.getTurbidity(), request.getTds());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -107,7 +107,7 @@ public class SensorDataController {
                 .ph(data.getPh())
                 .temperature(data.getTemperature())
                 .turbidity(data.getTurbidity())
-                .conductivity(data.getConductivity())
+                .tds(data.getTds())
                 .timestamp(data.getTimestamp())
                 .deviceId(data.getDevice().getId())
                 .build());

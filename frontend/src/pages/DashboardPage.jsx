@@ -8,10 +8,10 @@ import { sensorDataAPI, deviceAPI } from '@/utils/api.js';
 
 function DashboardPage() {
   const [metrics, setMetrics] = useState({
-    ph: { value: null, label: 'pH', unit: '', standard: '6.5-8.5', icon: '🧪' },
-    temperature: { value: null, label: 'Nhiệt độ', unit: '°C', standard: '≤30°C', icon: '🌡️' },
-    turbidity: { value: null, label: 'Độ đục', unit: 'NTU', standard: '≤5 NTU', icon: '💧' },
-    conductivity: { value: null, label: 'Độ dẫn điện', unit: 'µS/cm', standard: '≤1000 µS/cm', icon: '⚡' },
+    ph: { value: null, label: 'pH', unit: '', standard: '5.5-9', icon: '🧪' },
+    temperature: { value: null, label: 'Nhiệt độ', unit: '°C', standard: '≤40°C', icon: '🌡️' },
+    turbidity: { value: null, label: 'Độ đục', unit: 'NTU', standard: '≤50 NTU', icon: '💧' },
+    tds: { value: null, label: 'Tổng chất rắn hòa tan', unit: 'mg/l', standard: '≤1000 mg/l', icon: '💧' },
   });
   const [devices, setDevices] = useState([]);
   // Lưu lịch sử 20 bản ghi realtime
@@ -61,7 +61,7 @@ function DashboardPage() {
               ph: { ...prev.ph, value: latest.ph ?? 'N/A' },
               temperature: { ...prev.temperature, value: latest.temperature ?? 'N/A' },
               turbidity: { ...prev.turbidity, value: latest.turbidity ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
-              conductivity: { ...prev.conductivity, value: latest.conductivity ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
+              tds: { ...prev.tds, value: latest.tds ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
             }));
           }
         }
@@ -124,7 +124,7 @@ function DashboardPage() {
             ph: { ...prev.ph, value: latest.ph ?? 'N/A' },
             temperature: { ...prev.temperature, value: latest.temperature ?? 'N/A' },
             turbidity: { ...prev.turbidity, value: latest.turbidity ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
-            conductivity: { ...prev.conductivity, value: latest.conductivity ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
+            tds: { ...prev.tds, value: latest.tds ?? 'N/A', updated: latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString() : 'N/A' },
           }));
           console.log('[POLL] Đã cập nhật metrics với dữ liệu mới');
         } else {
@@ -199,7 +199,7 @@ function DashboardPage() {
             <MetricCard data={metrics.ph} />
             <MetricCard data={metrics.temperature} />
             <MetricCard data={metrics.turbidity} />
-            <MetricCard data={metrics.conductivity} />
+            <MetricCard data={metrics.tds} />
           </div>
 
           {/* Charts and Controls */}

@@ -53,7 +53,8 @@ STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:80
     "ph": 7.5,
     "temperature": 26.1,
     "turbidity": 1.2,
-    "conductivity": 550
+    "tds": 1.2
+}'
 }')
 
 if [ "$STATUS_CODE" -ne 201 ]; then

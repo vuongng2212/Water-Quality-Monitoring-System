@@ -16,7 +16,7 @@ public class SensorDataDto {
     private Double ph;
     private Double temperature;
     private Double turbidity;
-    private Double conductivity;
+    private Double tds;
     private LocalDateTime timestamp;
     private Long deviceId; // Only device ID, no nested object
 }

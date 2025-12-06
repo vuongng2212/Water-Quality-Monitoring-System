@@ -184,7 +184,7 @@ function HistoryPage() {
                       Độ đục (NTU)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Độ dẫn điện (µS/cm)
+                      Tổng chất rắn hòa tan (mg/l)
                     </th>
                   </tr>
                 </thead>
@@ -211,7 +211,7 @@ function HistoryPage() {
                           {row.turbidity || '--'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {row.conductivity || '--'}
+                          {row.tds || '--'}
                         </td>
                       </tr>
                     ))
