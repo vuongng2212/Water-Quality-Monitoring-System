@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 // Define thresholds matching backend AlertService
 const thresholds = {
-  ph: { min: 6.5, max: 8.5 },
-  temperature: { max: 30 }, // Celsius - only max threshold
-  turbidity: { max: 5 }, // NTU
-  conductivity: { max: 1000 } // µS/cm
+  ph: { min: 5.5, max: 9 },
+  temperature: { max: 40 }, // Celsius - only max threshold
+  turbidity: { max: 50 }, // NTU
+  tds: { max: 1000 }, // mg/l
 };
 
 function AlertBanner({ metrics = {} }) {
@@ -51,17 +51,17 @@ function AlertBanner({ metrics = {} }) {
         id: 'turbidity-high',
         type: 'warning',
         message: `Độ đục quá cao: ${metrics.turbidity.value} NTU (ngưỡng tối đa: ${thresholds.turbidity.max} NTU)`,
-        icon: '🌊'
+        icon: '💧'
       });
     }
 
-    // Check conductivity
-    if (metrics.conductivity?.value !== null && metrics.conductivity.value > thresholds.conductivity.max) {
+    // Check TDS
+    if (metrics.tds?.value !== null && metrics.tds.value > thresholds.tds.max) {
       newAlerts.push({
-        id: 'conductivity-high',
+        id: 'tds-high',
         type: 'warning',
-        message: `Độ dẫn điện quá cao: ${metrics.conductivity.value} µS/cm (ngưỡng tối đa: ${thresholds.conductivity.max} µS/cm)`,
-        icon: '⚡'
+        message: `Tổng chất rắn hòa tan quá cao: ${metrics.tds.value} mg/l (ngưỡng tối đa: ${thresholds.tds.max} mg/l)`,
+        icon: '🌊'
       });
     }
 

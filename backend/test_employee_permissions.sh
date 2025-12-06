@@ -216,7 +216,8 @@ DEVICE_A_DATA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST $BASE_URL/
     "ph": 7.0,
     "temperature": 25.0,
     "turbidity": 1.0,
-    "conductivity": 500
+    "tds": 1.0
+}'
 }')
 if [ "$DEVICE_A_DATA_STATUS" -ne 201 ]; then
     echo "ERROR: Failed to send data to DeviceA. HTTP Status: $DEVICE_A_DATA_STATUS"
@@ -232,7 +233,8 @@ DEVICE_B_DATA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST $BASE_URL/
     "ph": 7.2,
     "temperature": 26.0,
     "turbidity": 1.2,
-    "conductivity": 520
+    "tds": 1.2
+}'
 }')
 if [ "$DEVICE_B_DATA_STATUS" -ne 201 ]; then
     echo "ERROR: Failed to send data to DeviceB. HTTP Status: $DEVICE_B_DATA_STATUS"

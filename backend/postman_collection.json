@@ -115,7 +115,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"ph\": 7.5,\n    \"temperature\": 26.1,\n    \"turbidity\": 1.2,\n    \"conductivity\": 550\n}"
+              "raw": "{\n    \"ph\": 7.5,\n    \"temperature\": 26.1,\n    \"turbidity\": 1.2,\n    \"tds\": 1.2\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/sensor-data",
@@ -972,7 +972,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"ph\": 7.0,\n    \"temperature\": 25.0,\n    \"turbidity\": 1.0,\n    \"conductivity\": 500\n}"
+              "raw": "{\n    \"ph\": 7.0,\n    \"temperature\": 25.0,\n    \"turbidity\": 1.0,\n    \"tds\": 1.0\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/sensor-data",
@@ -1015,7 +1015,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"ph\": 7.2,\n    \"temperature\": 26.0,\n    \"turbidity\": 1.2,\n    \"conductivity\": 520\n}"
+              "raw": "{\n    \"ph\": 7.2,\n    \"temperature\": 26.0,\n    \"turbidity\": 1.2,\n    \"tds\": 1.2\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/sensor-data",

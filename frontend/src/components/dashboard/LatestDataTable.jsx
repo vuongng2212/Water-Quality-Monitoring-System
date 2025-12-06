@@ -13,7 +13,7 @@ function LatestDataTable({ data = [] }) {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">pH</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhiệt độ (°C)</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độ đục (NTU)</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độ dẫn điện (µS/cm)</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng chất rắn hòa tan (mg/l)</th>
           </tr>
         </thead>
         <tbody id="dataTableBody" className="bg-white divide-y divide-gray-200">
@@ -32,7 +32,7 @@ function LatestDataTable({ data = [] }) {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.ph || '--'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.temperature || '--'}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.turbidity || '--'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.conductivity || '--'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.tds || '--'}</td>
               </tr>
             ))
           )}
