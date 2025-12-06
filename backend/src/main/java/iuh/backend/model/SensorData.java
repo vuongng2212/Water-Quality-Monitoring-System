@@ -28,7 +28,7 @@ public class SensorData {
 
     private Double turbidity;
 
-    private Double conductivity;
+    private Double tds;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
