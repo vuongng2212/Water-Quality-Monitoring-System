@@ -3,7 +3,7 @@
 
 $API_URL = 'http://localhost:8081/api/sensor-data'
 $SETTINGS_URL = 'http://localhost:8081/api/device/settings'
-$API_KEY = 'd8ab63e7-3896-4909-8215-ba43a28edc8d'
+$API_KEY = 'ef81b8ba-c741-41c2-9a91-7f5f45e104fa'
 
 Write-Host "Testing backend API..."
 Write-Host "Settings URL: $SETTINGS_URL"
@@ -30,10 +30,10 @@ function Get-DeviceSettings {
 function Send-SensorData {
     param($settings)
     $data = @{
-        ph = [math]::Round((Get-Random -Minimum 45 -Maximum 85) / 10.0, 1)
-        temperature = [math]::Round((Get-Random -Minimum 200 -Maximum 300) / 10.0, 1)
-        turbidity = [math]::Round((Get-Random -Minimum 10 -Maximum 35) / 10.0, 2)
-        conductivity = Get-Random -Minimum 500 -Maximum 800
+        ph = [math]::Round((Get-Random -Minimum 55 -Maximum 95) / 10.0, 1)
+        temperature = [math]::Round((Get-Random -Minimum 300 -Maximum 450) / 10.0, 1)
+        turbidity = [math]::Round((Get-Random -Minimum 400 -Maximum 550) / 10.0, 2)
+        tds = Get-Random -Minimum 800 -Maximum 1100
         currentSettings = $settings
     }
     try {
