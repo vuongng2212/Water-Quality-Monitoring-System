@@ -1,367 +1,212 @@
-# 🌊 Hệ thống Giám sát Chất lượng Nước (Water Quality Monitoring System)
+# Water Quality Monitoring System
 
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+Nền tảng giám sát chất lượng nước theo mô hình SaaS đa nhà máy, kết hợp backend Spring Boot, frontend React và cơ sở dữ liệu PostgreSQL để theo dõi dữ liệu cảm biến, quản lý thiết bị và phân quyền truy cập theo vai trò.
 
-Một nền tảng SaaS đa người dùng (Multi-tenant) toàn diện để giám sát chất lượng nước theo thời gian thực, được xây dựng với kiến trúc hiện đại và khả năng mở rộng cao.
+## Tổng quan
 
----
+Dự án được xây dựng cho bối cảnh nhà máy xử lý nước hoặc hệ thống IoT công nghiệp, nơi dữ liệu từ thiết bị được đẩy lên backend qua API key, sau đó hiển thị trên dashboard cho người dùng đăng nhập bằng JWT. Hệ thống hỗ trợ đa tenant theo `factory_id`, cho phép tách biệt dữ liệu giữa các nhà máy trong cùng một ứng dụng.
 
-## 📋 Mục lục
+### Mục tiêu chính
 
-- [Tổng quan](#-tổng-quan)
-- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
-- [Tính năng chính](#-tính-năng-chính)
-- [Stack công nghệ](#-stack-công-nghệ)
-- [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
-- [Cài đặt & Khởi động](#-cài-đặt--khởi-động)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
-- [API Documentation](#-api-documentation)
-- [Hướng dẫn sử dụng](#-hướng-dẫn-sử-dụng)
-- [Testing](#-testing)
-- [Deployment](#-deployment)
-- [Roadmap](#-roadmap)
-- [Đóng góp](#-đóng-góp)
-- [License](#-license)
+- Giám sát dữ liệu cảm biến theo thời gian gần thực.
+- Quản lý người dùng, thiết bị và phân quyền theo nhà máy.
+- Điều khiển trạng thái thiết bị và cấu hình vận hành từ giao diện web.
+- Cung cấp API rõ ràng để tích hợp với thiết bị ESP32/ESP8266 hoặc hệ thống IoT tương tự.
 
----
+## Tính năng chính
 
-## 🎯 Tổng quan
+### Xác thực và phân quyền
 
-**Water Quality Monitoring System** là một giải pháp IoT tích hợp hoàn chỉnh cho phép các nhà máy xử lý nước giám sát và kiểm soát chất lượng nước theo thời gian thực. Hệ thống hỗ trợ kiến trúc đa người dùng (multi-tenant), cho phép nhiều nhà máy hoạt động độc lập trên cùng một nền tảng với dữ liệu được bảo mật và phân tách hoàn toàn.
+- Đăng nhập người dùng bằng username/password và phát hành JWT.
+- Xác thực thiết bị IoT bằng `X-API-KEY`.
+- Phân quyền theo vai trò `ADMIN` và `EMPLOYEE`.
+- Giới hạn dữ liệu theo nhà máy thông qua tenant context.
 
-### 🎨 Ảnh chụp màn hình
+### Giám sát dữ liệu cảm biến
 
-```
-Dashboard với biểu đồ thời gian thực
-├── Giám sát pH, nhiệt độ, độ đục, độ dẫn điện
-├── Cảnh báo tự động khi vượt ngưỡng
-├── Điều khiển thiết bị (van nước, thu thập dữ liệu)
-└── Lịch sử dữ liệu với bộ lọc thời gian
-```
+- Ghi nhận dữ liệu pH, nhiệt độ, độ đục và TDS.
+- Dashboard cập nhật theo cơ chế polling mỗi 10 giây.
+- Biểu đồ xu hướng và bảng dữ liệu mới nhất cho từng thiết bị.
+- Trang lịch sử cho phép lọc theo thiết bị, khoảng thời gian và số lượng bản ghi.
 
-### 🌟 Điểm nổi bật
+### Quản lý thiết bị
 
-- ✅ **Real-time Monitoring**: Giám sát chất lượng nước theo thời gian thực
-- ✅ **Multi-tenant Architecture**: Hỗ trợ nhiều nhà máy độc lập
-- ✅ **IoT Integration**: Tích hợp với thiết bị ESP8266/ESP32
-- ✅ **Smart Alerts**: Cảnh báo email tự động khi vượt ngưỡng
-- ✅ **Device Control**: Điều khiển thiết bị từ xa (van nước, cài đặt)
-- ✅ **Role-based Access**: Phân quyền chi tiết (Admin, Employee)
-- ✅ **Responsive UI**: Giao diện thân thiện trên mọi thiết bị
+- Tạo, cập nhật, xóa thiết bị.
+- Sinh API key tự động cho thiết bị mới.
+- Gán và hủy gán thiết bị cho nhân viên.
+- Quản lý cài đặt thiết bị gồm trạng thái van, trạng thái thu thập dữ liệu và chu kỳ gửi dữ liệu.
 
----
+### Quản lý người dùng
 
-## 🏗️ Kiến trúc hệ thống
+- Tạo, cập nhật, xóa người dùng trong phạm vi nhà máy.
+- Đổi mật khẩu với kiểm tra mật khẩu hiện tại.
+- Người dùng có thể cập nhật hồ sơ cá nhân.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT LAYER                             │
-├─────────────────────────────────────────────────────────────────┤
-│  React Frontend (Vite)                                           │
-│  ├── Dashboard: Biểu đồ real-time, metrics                       │
-│  ├── Device Management: Quản lý thiết bị                         │
-│  ├── User Management: Quản lý người dùng                         │
-│  └── History: Xem lịch sử dữ liệu                               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ↓ HTTPS/REST API
-┌─────────────────────────────────────────────────────────────────┐
-│                      APPLICATION LAYER                           │
-├─────────────────────────────────────────────────────────────────┤
-│  Spring Boot Backend (Java 17)                                   │
-│  ├── Security Layer                                              │
-│  │   ├── JWT Authentication (Users)                             │
-│  │   └── API Key Authentication (IoT Devices)                   │
-│  ├── Business Logic                                              │
-│  │   ├── Multi-tenant Context                                   │
-│  │   ├── Alert Service (Email)                                  │
-│  │   ├── Device Control Service                                 │
-│  │   └── Permission Service                                     │
-│  └── REST Controllers                                            │
-│      ├── /api/auth - Authentication                             │
-│      ├── /api/users - User Management                           │
-│      ├── /api/devices - Device Management                       │
-│      ├── /api/sensor-data - Sensor Data                         │
-│      └── /api/controls - Device Control                         │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ↓ JPA/Hibernate
-┌─────────────────────────────────────────────────────────────────┐
-│                       DATA LAYER                                 │
-├─────────────────────────────────────────────────────────────────┤
-│  PostgreSQL Database                                             │
-│  ├── factories: Thông tin nhà máy                               │
-│  ├── users: Người dùng (Admin, Employee)                        │
-│  ├── devices: Thiết bị IoT                                      │
-│  ├── sensor_data: Dữ liệu cảm biến                             │
-│  ├── device_settings: Cài đặt thiết bị                         │
-│  └── employee_device_access: Quyền truy cập                     │
-└─────────────────────────────────────────────────────────────────┘
-                              ↑
-                              │ HTTP/API Key
-┌─────────────────────────────────────────────────────────────────┐
-│                         IoT LAYER                                │
-├─────────────────────────────────────────────────────────────────┤
-│  ESP8266/ESP32 Devices                                           │
-│  ├── pH Sensor                                                   │
-│  ├── Temperature Sensor                                          │
-│  ├── Turbidity Sensor                                           │
-│  └── Water Valve Control                                        │
-└─────────────────────────────────────────────────────────────────┘
+### Cảnh báo và vận hành
+
+- Kiểm tra ngưỡng dữ liệu ngay khi hệ thống nhận bản ghi cảm biến mới.
+- Gửi email cảnh báo cho các tài khoản liên quan trong nhà máy.
+- Hỗ trợ điều khiển van nước, bật/tắt thu thập dữ liệu và thay đổi chu kỳ gửi dữ liệu từ giao diện web.
+
+## Kiến trúc hệ thống
+
+```mermaid
+flowchart LR
+  Device[IoT Device] -->|X-API-KEY| Backend[Spring Boot API]
+  User[Web User] -->|JWT| Frontend[React SPA]
+  Frontend -->|REST API| Backend
+  Backend --> Database[(PostgreSQL)]
+  Backend --> Mail[Email Service]
 ```
 
-### 🔐 Security Architecture
+### Luồng chính
 
-```
-┌──────────────────┐         ┌──────────────────┐
-│   Web Users      │         │   IoT Devices    │
-│  (Admin/Emp)     │         │  (ESP32/8266)    │
-└────────┬─────────┘         └────────┬─────────┘
-         │                            │
-         │ Email/Password             │ API Key
-         ↓                            ↓
-┌────────────────────────────────────────────────┐
-│         Spring Security Filter Chain           │
-├────────────────────────────────────────────────┤
-│  ┌──────────────────┐  ┌──────────────────┐   │
-│  │ JWT Auth Filter  │  │ API Key Filter   │   │
-│  │ (Bearer Token)   │  │ (X-API-KEY)      │   │
-│  └──────────────────┘  └──────────────────┘   │
-└────────────────────────────────────────────────┘
-         │                            │
-         ↓                            ↓
-┌────────────────────────────────────────────────┐
-│         Multi-Tenant Context                   │
-│  (Automatic data isolation by factory_id)      │
-└────────────────────────────────────────────────┘
-```
+1. Người dùng đăng nhập trên web và nhận JWT.
+2. Frontend gọi API để tải dashboard, thiết bị, người dùng và lịch sử dữ liệu.
+3. Thiết bị gửi dữ liệu cảm biến lên backend qua API key.
+4. Backend lưu dữ liệu, kiểm tra cảnh báo và cập nhật trạng thái hiển thị.
+5. Dữ liệu được tách theo nhà máy để đảm bảo isolation giữa các tenant.
 
----
+## Mô hình phân quyền
 
-## ✨ Tính năng chính
+| Vai trò    | Quyền chính                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN`    | Quản lý người dùng, thiết bị, cài đặt thiết bị, phân quyền thiết bị và xem toàn bộ dữ liệu trong nhà máy                        |
+| `EMPLOYEE` | Xem dữ liệu của thiết bị được cấp quyền, theo dõi dashboard, điều khiển thiết bị trong phạm vi cho phép, cập nhật hồ sơ cá nhân |
 
-### 🏭 Multi-Tenancy (Đa người dùng)
+## Frontend
 
-- Hỗ trợ nhiều nhà máy hoạt động độc lập
-- Dữ liệu được phân tách hoàn toàn theo `factory_id`
-- Mỗi nhà máy có người dùng và thiết bị riêng
-- Bảo mật cấp độ database với Hibernate Filters
+Ứng dụng frontend là một SPA xây dựng bằng React và Vite. Các trang chính gồm:
 
-### 👥 Quản lý người dùng & Phân quyền
+- Đăng nhập.
+- Dashboard tổng quan.
+- Lịch sử dữ liệu.
+- Hồ sơ cá nhân.
+- Quản lý người dùng dành cho ADMIN.
+- Quản lý thiết bị dành cho ADMIN.
 
-- **ADMIN**: Toàn quyền quản lý nhà máy
-  - Tạo/sửa/xóa người dùng
-  - Quản lý tất cả thiết bị
-  - Cấp quyền truy cập cho Employee
-  - Xem tất cả dữ liệu
-- **EMPLOYEE**: Quyền hạn chế
-  - Chỉ xem thiết bị được cấp quyền
-  - Điều khiển thiết bị được phép
-  - Nhận cảnh báo email
+Các thành phần đáng chú ý:
 
-### 🔧 Quản lý thiết bị IoT
+- Biểu đồ thời gian thực với Chart.js.
+- Thẻ metric hiển thị giá trị cảm biến và ngưỡng tham chiếu.
+- Bảng dữ liệu mới nhất.
+- Khối điều khiển thiết bị và thông báo cảnh báo.
 
-- Thêm/sửa/xóa thiết bị
-- Tự động sinh API Key cho mỗi thiết bị
-- Quản lý cài đặt thiết bị:
-  - Khoảng thời gian gửi dữ liệu
-  - Bật/tắt thu thập dữ liệu
-  - Cài đặt ngưỡng cảnh báo
-- Gán thiết bị cho Employee
+## Backend
 
-### 📊 Giám sát Real-time
+Backend được tổ chức theo các lớp chính:
 
-- Dashboard hiển thị dữ liệu trực tiếp
-- Biểu đồ thời gian thực (Chart.js)
-- 4 chỉ số chính:
-  - **pH**: 6.5-8.5 (tiêu chuẩn)
-  - **Nhiệt độ**: ≤30°C
-  - **Độ đục**: ≤5 NTU
-  - **Độ dẫn điện**: ≤1000 µS/cm
+- `controller`: REST API cho xác thực, người dùng, thiết bị, dữ liệu cảm biến và điều khiển.
+- `service`: xử lý nghiệp vụ, phân quyền, cảnh báo, cài đặt thiết bị và JWT.
+- `repository`: truy cập dữ liệu bằng Spring Data JPA.
+- `model`: thực thể `User`, `Factory`, `Device`, `SensorData`, `DeviceSettings` và quan hệ cấp quyền.
+- `config`: bảo mật, API key filter, JWT filter, tenant context và dữ liệu khởi tạo.
 
-### 🎛️ Điều khiển từ xa
+## API chính
 
-- Bật/tắt van nước
-- Điều chỉnh tần suất gửi dữ liệu
-- Bật/tắt chế độ thu thập dữ liệu
-- Cập nhật cài đặt thiết bị
+### Xác thực
 
-### 📧 Hệ thống cảnh báo
+- `POST /api/auth/login`
+- `GET /api/auth/me`
 
-- Email tự động khi vượt ngưỡng
-- Gửi đến Admin và Employee được phân quyền
-- Cảnh báo theo thời gian thực
-- Lịch sử cảnh báo
+### Người dùng
 
-### 📈 Lịch sử & Báo cáo
+- `GET /api/users`
+- `POST /api/users`
+- `GET /api/users/{id}`
+- `PUT /api/users/{id}`
+- `PUT /api/users/{id}/password`
+- `DELETE /api/users/{id}`
 
-- Xem lịch sử dữ liệu theo thiết bị
-- Bộ lọc theo khoảng thời gian
-- Biểu đồ xu hướng
-- Xuất dữ liệu (planned)
+### Thiết bị
 
----
+- `GET /api/devices`
+- `POST /api/devices`
+- `GET /api/devices/{id}`
+- `PUT /api/devices/{id}`
+- `DELETE /api/devices/{id}`
+- `POST /api/devices/{deviceId}/assign`
+- `POST /api/devices/{deviceId}/unassign`
+- `GET /api/devices/{deviceId}/settings`
+- `PUT /api/devices/{deviceId}/settings`
 
-## 🛠️ Stack công nghệ
+### Điều khiển thiết bị
+
+- `POST /api/controls/devices/{deviceId}/valve`
+- `PUT /api/controls/devices/{deviceId}/interval`
+- `PUT /api/controls/devices/{deviceId}/collecting`
+
+### Dữ liệu cảm biến
+
+- `POST /api/sensor-data`
+- `GET /api/sensor-data/history/{deviceId}`
+
+### Tài liệu API
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+
+## Công nghệ sử dụng
 
 ### Backend
 
-| Công nghệ         | Phiên bản | Mục đích               |
-| ----------------- | --------- | ---------------------- |
-| Java              | 17        | Ngôn ngữ lập trình     |
-| Spring Boot       | 3.5.6     | Framework backend      |
-| Spring Security   | 6.x       | Bảo mật, xác thực      |
-| Spring Data JPA   | 3.x       | ORM, truy vấn database |
-| Hibernate         | 6.x       | ORM implementation     |
-| PostgreSQL        | 16        | Database quan hệ       |
-| JWT (jjwt)        | 0.11.5    | Token-based auth       |
-| Lombok            | Latest    | Giảm boilerplate code  |
-| SpringDoc OpenAPI | 2.6.0     | API documentation      |
-| Gradle            | 8.x       | Build tool             |
-| Docker            | Latest    | Containerization       |
+| Công nghệ         | Phiên bản / ghi chú |
+| ----------------- | ------------------- |
+| Java              | 17                  |
+| Spring Boot       | 3.5.6               |
+| Spring Security   | 6.x                 |
+| Spring Data JPA   | 3.x                 |
+| Hibernate         | 6.x                 |
+| PostgreSQL        | 16                  |
+| JWT               | JJWT 0.11.5         |
+| Spring Mail       | Email cảnh báo      |
+| Spring AOP        | Tenant filtering    |
+| SpringDoc OpenAPI | 2.6.0               |
+| Gradle            | Wrapper đi kèm      |
 
 ### Frontend
 
-| Công nghệ    | Phiên bản | Mục đích                |
-| ------------ | --------- | ----------------------- |
-| React        | 19.1.1    | UI framework            |
-| Vite         | 7.1.7     | Build tool & dev server |
-| React Router | 7.9.4     | Client-side routing     |
-| Axios        | 1.12.2    | HTTP client             |
-| Chart.js     | 4.5.1     | Biểu đồ real-time       |
-| TailwindCSS  | 3.4.18    | Utility-first CSS       |
-| JWT Decode   | 4.0.0     | Decode JWT tokens       |
+| Công nghệ       | Phiên bản / ghi chú |
+| --------------- | ------------------- |
+| React           | 19.1.1              |
+| Vite            | 7.1.7               |
+| React Router    | 7.9.4               |
+| Axios           | 1.12.2              |
+| Chart.js        | 4.5.1               |
+| react-chartjs-2 | 5.3.0               |
+| Tailwind CSS    | 3.4.18              |
+| date-fns        | 4.1.0               |
+| jwt-decode      | 4.0.0               |
 
-### DevOps & Tools
+## Yêu cầu hệ thống
 
-- **Docker Compose**: Orchestration
-- **Postman**: API testing
-- **Git**: Version control
-- **Node.js**: Frontend build & IoT simulator
+- JDK 17 trở lên.
+- Node.js 18 trở lên.
+- Docker và Docker Compose.
+- PostgreSQL 16 nếu không chạy bằng container.
 
----
+## Cài đặt và chạy local
 
-## 📦 Yêu cầu hệ thống
-
-### Development
-
-- **JDK**: 17 hoặc cao hơn
-- **Node.js**: 18+ và npm
-- **Docker**: 20.10+ và Docker Compose
-- **Git**: Để clone repository
-- **RAM**: Tối thiểu 4GB (khuyến nghị 8GB)
-- **Disk**: 2GB trống
-
-### Production
-
-- **Server**: Linux/Windows Server
-- **JRE**: 17+
-- **PostgreSQL**: 16+
-- **Reverse Proxy**: Nginx/Apache (khuyến nghị)
-- **SSL Certificate**: Cho HTTPS
-
----
-
-## 🚀 Cài đặt & Khởi động
-
-### 1️⃣ Clone Repository
-
-```bash
-git clone <repository-url>
-cd Water-Quality-Monitoring-System
-```
-
-### 2️⃣ Setup Backend
-
-#### Bước 1: Khởi động Database
+### 1. Backend
 
 ```bash
 cd backend
 docker-compose up -d
-```
-
-Database PostgreSQL sẽ chạy tại `localhost:5432` với:
-
-- Database: `water_quality_db`
-- User: `root`
-- Password: `1111`
-
-#### Bước 2: Cấu hình Environment
-
-Tạo file `backend/src/main/resources/application.properties`:
-
-```properties
-# Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/water_quality_db
-spring.datasource.username=postgres
-spring.datasource.password=1111
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-# JWT Configuration
-jwt.secret=your-super-secret-key-change-this-in-production-minimum-256-bits
-
-# Email Configuration (Gmail example)
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-spring.mail.properties.mail.smtp.starttls.required=true
-spring.mail.properties.mail.smtp.connectiontimeout=5000
-spring.mail.properties.mail.smtp.timeout=5000
-spring.mail.properties.mail.smtp.writetimeout=5000
-
-# Server Configuration
-server.port=8080
-```
-
-**⚠️ Lưu ý:**
-
-- Thay đổi `jwt.secret` thành chuỗi bí mật của bạn (tối thiểu 256 bits)
-- Với Gmail, cần tạo [App Password](https://myaccount.google.com/apppasswords) thay vì mật khẩu thông thường
-- Không commit file `application.properties` lên Git (đã có trong `.gitignore`)
-
-#### Bước 3: Build và Run Backend
-
-**Sử dụng Gradle (Linux/Mac):**
-
-```bash
 ./gradlew bootRun
 ```
 
-**Sử dụng Gradle (Windows):**
+Backend mặc định chạy tại `http://localhost:8080`.
 
-```bash
-gradlew.bat bootRun
-```
-
-Backend sẽ chạy tại: `http://localhost:8080`
-
-#### Bước 4: Kiểm tra Backend
-
-Truy cập Swagger UI để xem API documentation:
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
-### 3️⃣ Setup Frontend
-
-#### Bước 1: Cài đặt dependencies
+### 2. Frontend
 
 ```bash
 cd frontend
 npm install
+npm run dev
 ```
 
-#### Bước 2: Cấu hình Environment
+Frontend mặc định chạy tại `http://localhost:5173`.
+
+### 3. Cấu hình biến môi trường cho frontend
 
 Tạo file `frontend/.env`:
 
@@ -369,594 +214,70 @@ Tạo file `frontend/.env`:
 VITE_API_BASE_URL=http://localhost:8080
 ```
 
-#### Bước 3: Khởi động Development Server
+### 4. Cấu hình backend tối thiểu
 
-```bash
-npm run dev
-```
+Tạo hoặc cập nhật `backend/src/main/resources/application.properties` theo môi trường triển khai của bạn. Các nhóm cấu hình quan trọng gồm:
 
-Frontend sẽ chạy tại: `http://localhost:5173`
+- datasource PostgreSQL.
+- JWT secret.
+- SMTP mail nếu muốn gửi cảnh báo email.
+- port server.
 
-### 4️⃣ Dữ liệu mẫu (Seeded Data)
+## Dữ liệu mẫu
 
-Backend tự động tạo dữ liệu mẫu khi khởi động lần đầu:
+Khi khởi động lần đầu, hệ thống tự tạo dữ liệu mẫu cho hai nhà máy:
 
-| Loại     | Username  | Password | Email                 | Role     |
-| -------- | --------- | -------- | --------------------- | -------- |
-| Factory  | Factory A | -        | -                     | -        |
-| Admin    | adminA    | admin    | admin@factoryA.com    | ADMIN    |
-| Employee | employeeA | employee | employee@factoryA.com | EMPLOYEE |
+| Nhà máy   | Tài khoản   | Mật khẩu   | Vai trò    |
+| --------- | ----------- | ---------- | ---------- |
+| Factory A | `adminA`    | `admin`    | `ADMIN`    |
+| Factory A | `employeeA` | `employee` | `EMPLOYEE` |
+| Factory B | `adminB`    | `admin`    | `ADMIN`    |
+| Factory B | `employeeB` | `employee` | `EMPLOYEE` |
 
-**Device mẫu:**
+## Mô phỏng thiết bị IoT
 
-- Device 1 (Factory A)
-- API Key: Xem trong logs hoặc GET `/api/devices`
+Thư mục `fake-data/` chứa script mô phỏng thiết bị gửi dữ liệu cảm biến lên backend. Đây là công cụ phù hợp để kiểm thử luồng nhận dữ liệu và cảnh báo mà không cần phần cứng thật.
 
-### 5️⃣ Test với IoT Simulator (Optional)
+## Kiểm thử
 
-Mô phỏng thiết bị IoT gửi dữ liệu:
-
-```bash
-cd fake-data
-node send-sensor.js
-```
-
-**Lưu ý:** Cập nhật `API_KEY` trong file `send-sensor.js` với API key thực tế từ database.
-
----
-
-## 📁 Cấu trúc dự án
-
-```
-Water-Quality-Monitoring-System/
-│
-├── backend/                          # Spring Boot Backend
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/iuh/backend/
-│   │   │   │   ├── config/           # Security, CORS, Filters
-│   │   │   │   ├── controller/       # REST Controllers
-│   │   │   │   ├── model/            # JPA Entities
-│   │   │   │   ├── repository/       # Spring Data Repositories
-│   │   │   │   ├── service/          # Business Logic
-│   │   │   │   └── payload/          # DTOs, Requests, Responses
-│   │   │   └── resources/
-│   │   │       └── application.properties
-│   │   └── test/                     # Unit & Integration Tests
-│   ├── build.gradle                  # Gradle dependencies
-│   ├── docker-compose.yml            # PostgreSQL container
-│   └── README.md                     # Backend docs
-│
-├── frontend/                         # React Frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── dashboard/            # Dashboard components
-│   │   │   └── layout/               # Layout components
-│   │   ├── contexts/                 # React Contexts (Auth)
-│   │   ├── pages/                    # Page components
-│   │   ├── utils/                    # API clients, helpers
-│   │   ├── App.jsx                   # Main App component
-│   │   └── main.jsx                  # Entry point
-│   ├── package.json                  # npm dependencies
-│   ├── vite.config.js                # Vite configuration
-│   └── tailwind.config.js            # Tailwind CSS config
-│
-├── fake-data/                        # IoT Simulator
-│   └── send-sensor.js                # Node.js simulator script
-│
-└── README.md                         # This file
-```
-
----
-
-## 📚 API Documentation
-
-### Base URL
-
-```
-http://localhost:8080/api
-```
-
-### 🔓 Authentication Endpoints
-
-#### Login
-
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "username": "adminA",
-  "password": "admin"
-}
-
-Response:
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "type": "Bearer",
-  "username": "adminA",
-  "role": "ADMIN",
-  "factoryName": "Factory A"
-}
-```
-
-### 👥 User Management (Admin only)
-
-#### Get All Users
-
-```http
-GET /api/users
-Authorization: Bearer {token}
-```
-
-#### Create User
-
-```http
-POST /api/users
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "username": "newuser",
-  "password": "password123",
-  "email": "user@example.com",
-  "role": "EMPLOYEE"
-}
-```
-
-#### Update User
-
-```http
-PUT /api/users/{userId}
-Authorization: Bearer {token}
-```
-
-#### Delete User
-
-```http
-DELETE /api/users/{userId}
-Authorization: Bearer {token}
-```
-
-### 🔧 Device Management (Admin only)
-
-#### Get All Devices
-
-```http
-GET /api/devices
-Authorization: Bearer {token}
-```
-
-#### Create Device
-
-```http
-POST /api/devices
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "name": "Water Monitor 1",
-  "location": "Tank A - Building 1"
-}
-
-Response:
-{
-  "id": 1,
-  "name": "Water Monitor 1",
-  "apiKey": "generated-uuid-key",
-  "factoryId": 1
-}
-```
-
-#### Update Device
-
-```http
-PUT /api/devices/{deviceId}
-Authorization: Bearer {token}
-```
-
-#### Delete Device
-
-```http
-DELETE /api/devices/{deviceId}
-Authorization: Bearer {token}
-```
-
-### 📊 Sensor Data
-
-#### Submit Sensor Data (IoT Device)
-
-```http
-POST /api/sensor-data
-X-API-KEY: {device-api-key}
-Content-Type: application/json
-
-{
-  "ph": 7.2,
-  "temperature": 25.5,
-  "turbidity": 1.5,
-  "tds": 2.3
-}
-```
-
-#### Get Latest Data
-
-```http
-GET /api/sensor-data/latest?deviceId={deviceId}
-Authorization: Bearer {token}
-```
-
-#### Get History
-
-```http
-GET /api/sensor-data/history/{deviceId}?startDate={ISO8601}&endDate={ISO8601}&limit=100
-Authorization: Bearer {token}
-```
-
-### 🎛️ Device Control
-
-#### Control Valve
-
-```http
-POST /api/controls/devices/{deviceId}/valve
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "open": true
-}
-```
-
-#### Update Data Interval
-
-```http
-PUT /api/controls/devices/{deviceId}/interval
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "interval": 30
-}
-```
-
-#### Toggle Data Collection
-
-```http
-PUT /api/controls/devices/{deviceId}/collecting
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "collecting": true
-}
-```
-
-### 📖 Swagger UI
-
-Truy cập full API documentation tại:
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
----
-
-## 📖 Hướng dẫn sử dụng
-
-### Đăng nhập
-
-1. Truy cập `http://localhost:5173/login`
-2. Nhập username và password (xem [Dữ liệu mẫu](#4%EF%B8%8F⃣-dữ-liệu-mẫu-seeded-data))
-3. Click "Đăng nhập"
-
-### Dashboard (Admin & Employee)
-
-- Xem các chỉ số real-time (pH, nhiệt độ, độ đục, độ dẫn điện)
-- Theo dõi biểu đồ xu hướng
-- Nhận cảnh báo khi vượt ngưỡng
-- Điều khiển thiết bị (van nước, cài đặt)
-
-### Quản lý thiết bị (Admin only)
-
-1. Vào menu "Thiết bị"
-2. Click "Thêm thiết bị mới"
-3. Nhập tên và vị trí
-4. Hệ thống tự động tạo API Key
-5. Copy API Key cho thiết bị IoT
-
-### Quản lý người dùng (Admin only)
-
-1. Vào menu "Người dùng"
-2. Click "Thêm người dùng"
-3. Nhập thông tin và chọn vai trò
-4. Gán thiết bị cho Employee (nếu cần)
-
-### Xem lịch sử
-
-1. Vào menu "Lịch sử"
-2. Chọn thiết bị
-3. Chọn khoảng thời gian
-4. Xem biểu đồ và bảng dữ liệu
-
-### Cấu hình thiết bị IoT (ESP32/ESP8266)
-
-```cpp
-const char* apiUrl = "http://your-server:8080/api/sensor-data";
-const char* apiKey = "your-device-api-key";
-
-// Gửi dữ liệu
-HTTPClient http;
-http.begin(apiUrl);
-http.addHeader("Content-Type", "application/json");
-http.addHeader("X-API-KEY", apiKey);
-
-String jsonData = "{\"ph\":7.2,\"temperature\":25.5,\"turbidity\":1.5,\"tds\":2.3}";
-int httpCode = http.POST(jsonData);
-```
-
-**Lưu ý tương thích ngược:** Backend hỗ trợ cả field `"tds"` và `"turbidity"` trong JSON payload để tương thích với các thiết bị cũ vẫn gửi `"turbidity"`.
-
----
-
-## 🧪 Testing
-
-### Backend Tests
+### Backend
 
 ```bash
 cd backend
-
-# Run all tests
 ./gradlew test
-
-# Run specific test class
-./gradlew test --tests UserServiceTest
-
-# Generate test coverage report
-./gradlew jacocoTestReport
 ```
 
-### Frontend Tests
+### Frontend
 
 ```bash
 cd frontend
-
-# Run linter
 npm run lint
-
-# Build for production (test build process)
 npm run build
 ```
 
-### API Testing với Postman
+### Tập lệnh kiểm thử
 
-1. Import collection: `backend/postman_collection.json`
-2. Set environment variable `baseUrl=http://localhost:8080/api`
-3. Run collection để test tất cả endpoints
+- `backend/test_apis.sh`
+- `backend/test_multi_tenancy.sh`
+- `backend/test_employee_permissions.sh`
+- `backend/test_device_control.sh`
 
-### Manual API Testing
+## Ghi chú phạm vi hiện tại
 
-```bash
-cd backend
+- Dashboard đang dùng polling định kỳ, chưa triển khai WebSocket.
+- Cảnh báo được gửi qua email, chưa có bảng lưu lịch sử cảnh báo riêng.
+- Hệ thống tập trung vào đọc dữ liệu, phân quyền và điều khiển thiết bị trong phạm vi nhà máy.
 
-# Test complete workflow
-./test_apis.sh
+## Cấu trúc thư mục
 
-# Test multi-tenancy
-./test_multi_tenancy.sh
-
-# Test employee permissions
-./test_employee_permissions.sh
-
-# Test device control
-./test_device_control.sh
+```text
+Water-Quality-Monitoring-System/
+├── backend/      Spring Boot backend, API, security, persistence, tests
+├── frontend/     React SPA, dashboard, management pages, API client
+├── fake-data/    Script mô phỏng thiết bị IoT
+└── README.md     Tài liệu tổng quan dự án
 ```
 
----
+## Thông điệp dự án
 
-## 🚢 Deployment
-
-### Docker Deployment (Recommended)
-
-#### 1. Build Backend
-
-```bash
-cd backend
-./gradlew bootJar
-docker build -t water-monitoring-backend .
-```
-
-#### 2. Build Frontend
-
-```bash
-cd frontend
-npm run build
-docker build -t water-monitoring-frontend .
-```
-
-#### 3. Deploy với Docker Compose
-
-```yaml
-# docker-compose.prod.yml
-version: "3.8"
-
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: water_quality_db
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    restart: always
-
-  backend:
-    image: water-monitoring-backend
-    depends_on:
-      - db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/water_quality_db
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-    ports:
-      - "8080:8080"
-    restart: always
-
-  frontend:
-    image: water-monitoring-frontend
-    ports:
-      - "80:80"
-    restart: always
-
-volumes:
-  db_data:
-```
-
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Manual Deployment
-
-#### Backend (JAR)
-
-```bash
-# Build
-./gradlew bootJar
-
-# Run
-java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
-```
-
-#### Frontend (Static Files)
-
-```bash
-# Build
-npm run build
-
-# Serve với Nginx
-# Copy dist/* to /var/www/html
-```
-
-### Environment Variables
-
-**Backend:**
-
-```env
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/water_quality_db
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=your_password
-JWT_SECRET=your_jwt_secret_minimum_256_bits
-SPRING_MAIL_USERNAME=your_email@gmail.com
-SPRING_MAIL_PASSWORD=your_app_password
-```
-
-**Frontend:**
-
-```env
-VITE_API_BASE_URL=https://your-api-domain.com
-```
-
----
-
-## 🗺️ Roadmap
-
-### ✅ Đã hoàn thành
-
-- [x] Multi-tenant architecture
-- [x] JWT & API Key authentication
-- [x] Real-time dashboard
-- [x] Device management
-- [x] User management với RBAC
-- [x] Email alerts
-- [x] Device control (valve, settings)
-- [x] Historical data viewing
-
-### 🔄 Đang phát triển
-
-- [ ] WebSocket for real-time updates
-- [ ] Advanced data analytics
-- [ ] Mobile app (React Native)
-- [ ] Export data to Excel/PDF
-- [ ] Scheduled reports
-
-### 📅 Kế hoạch tương lai
-
-- [ ] AI/ML predictions
-- [ ] Multi-language support (i18n)
-- [ ] Dark mode
-- [ ] Advanced charts (heatmaps, etc.)
-- [ ] Audit logs
-- [ ] Two-factor authentication (2FA)
-- [ ] REST API rate limiting
-- [ ] GraphQL API
-- [ ] Grafana integration
-- [ ] Kubernetes deployment
-
----
-
-## 🤝 Đóng góp
-
-Chúng tôi rất hoan nghênh mọi đóng góp! Để đóng góp:
-
-1. Fork repository
-2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
-3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. Push lên branch (`git push origin feature/AmazingFeature`)
-5. Tạo Pull Request
-
-### Coding Standards
-
-- **Java**: Follow Google Java Style Guide
-- **JavaScript/React**: Follow Airbnb Style Guide
-- **Commit messages**: Follow Conventional Commits
-
-### Development Guidelines
-
-- Viết unit tests cho features mới
-- Update documentation khi thay đổi API
-- Ensure code passes linting
-- Follow existing architecture patterns
-
----
-
-## 📞 Liên hệ & Hỗ trợ
-
-- **Email**: support@example.com
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Documentation**: [Wiki](https://github.com/your-repo/wiki)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Spring Boot team for excellent framework
-- React community for modern UI tools
-- Chart.js for beautiful charts
-- TailwindCSS for utility-first CSS
-- All open-source contributors
-
----
-
-## 📊 Project Stats
-
-![GitHub last commit](https://img.shields.io/github/last-commit/your-repo/water-monitoring)
-![GitHub issues](https://img.shields.io/github/issues/your-repo/water-monitoring)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/your-repo/water-monitoring)
-![GitHub stars](https://img.shields.io/github/stars/your-repo/water-monitoring)
-
----
-
-<div align="center">
-
-### ⭐ Nếu dự án hữu ích, hãy cho chúng tôi một Star!
-
-**Made with ❤️ by Water Quality Monitoring Team**
-
-</div>
+Đây là một dự án phù hợp để giới thiệu với nhà tuyển dụng vì thể hiện đầy đủ các mảng kỹ thuật quan trọng: kiến trúc multi-tenant, Spring Security, JWT/API key authentication, quản lý trạng thái thiết bị IoT, dashboard dữ liệu thời gian gần thực và giao diện quản trị tương đối hoàn chỉnh.
