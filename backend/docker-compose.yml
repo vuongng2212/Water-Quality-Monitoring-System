@@ -1,17 +1,18 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
-    image: mariadb:10.6
+    image: postgres:16
     container_name: water-quality-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: '1111'
-      MYSQL_DATABASE: 'water_quality_db'
+      POSTGRES_DB: "water_quality_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "1111"
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
 
 volumes:
   db_data:

@@ -3,7 +3,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
 ![Java](https://img.shields.io/badge/Java_17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 
@@ -94,7 +94,7 @@ Dashboard với biểu đồ thời gian thực
 ┌─────────────────────────────────────────────────────────────────┐
 │                       DATA LAYER                                 │
 ├─────────────────────────────────────────────────────────────────┤
-│  MariaDB Database                                                │
+│  PostgreSQL Database                                             │
 │  ├── factories: Thông tin nhà máy                               │
 │  ├── users: Người dùng (Admin, Employee)                        │
 │  ├── devices: Thiết bị IoT                                      │
@@ -146,12 +146,14 @@ Dashboard với biểu đồ thời gian thực
 ## ✨ Tính năng chính
 
 ### 🏭 Multi-Tenancy (Đa người dùng)
+
 - Hỗ trợ nhiều nhà máy hoạt động độc lập
 - Dữ liệu được phân tách hoàn toàn theo `factory_id`
 - Mỗi nhà máy có người dùng và thiết bị riêng
 - Bảo mật cấp độ database với Hibernate Filters
 
 ### 👥 Quản lý người dùng & Phân quyền
+
 - **ADMIN**: Toàn quyền quản lý nhà máy
   - Tạo/sửa/xóa người dùng
   - Quản lý tất cả thiết bị
@@ -163,6 +165,7 @@ Dashboard với biểu đồ thời gian thực
   - Nhận cảnh báo email
 
 ### 🔧 Quản lý thiết bị IoT
+
 - Thêm/sửa/xóa thiết bị
 - Tự động sinh API Key cho mỗi thiết bị
 - Quản lý cài đặt thiết bị:
@@ -172,6 +175,7 @@ Dashboard với biểu đồ thời gian thực
 - Gán thiết bị cho Employee
 
 ### 📊 Giám sát Real-time
+
 - Dashboard hiển thị dữ liệu trực tiếp
 - Biểu đồ thời gian thực (Chart.js)
 - 4 chỉ số chính:
@@ -181,18 +185,21 @@ Dashboard với biểu đồ thời gian thực
   - **Độ dẫn điện**: ≤1000 µS/cm
 
 ### 🎛️ Điều khiển từ xa
+
 - Bật/tắt van nước
 - Điều chỉnh tần suất gửi dữ liệu
 - Bật/tắt chế độ thu thập dữ liệu
 - Cập nhật cài đặt thiết bị
 
 ### 📧 Hệ thống cảnh báo
+
 - Email tự động khi vượt ngưỡng
 - Gửi đến Admin và Employee được phân quyền
 - Cảnh báo theo thời gian thực
 - Lịch sử cảnh báo
 
 ### 📈 Lịch sử & Báo cáo
+
 - Xem lịch sử dữ liệu theo thiết bị
 - Bộ lọc theo khoảng thời gian
 - Biểu đồ xu hướng
@@ -203,32 +210,35 @@ Dashboard với biểu đồ thời gian thực
 ## 🛠️ Stack công nghệ
 
 ### Backend
-| Công nghệ | Phiên bản | Mục đích |
-|-----------|-----------|----------|
-| Java | 17 | Ngôn ngữ lập trình |
-| Spring Boot | 3.5.6 | Framework backend |
-| Spring Security | 6.x | Bảo mật, xác thực |
-| Spring Data JPA | 3.x | ORM, truy vấn database |
-| Hibernate | 6.x | ORM implementation |
-| MariaDB | 10.6 | Database quan hệ |
-| JWT (jjwt) | 0.11.5 | Token-based auth |
-| Lombok | Latest | Giảm boilerplate code |
-| SpringDoc OpenAPI | 2.6.0 | API documentation |
-| Gradle | 8.x | Build tool |
-| Docker | Latest | Containerization |
+
+| Công nghệ         | Phiên bản | Mục đích               |
+| ----------------- | --------- | ---------------------- |
+| Java              | 17        | Ngôn ngữ lập trình     |
+| Spring Boot       | 3.5.6     | Framework backend      |
+| Spring Security   | 6.x       | Bảo mật, xác thực      |
+| Spring Data JPA   | 3.x       | ORM, truy vấn database |
+| Hibernate         | 6.x       | ORM implementation     |
+| PostgreSQL        | 16        | Database quan hệ       |
+| JWT (jjwt)        | 0.11.5    | Token-based auth       |
+| Lombok            | Latest    | Giảm boilerplate code  |
+| SpringDoc OpenAPI | 2.6.0     | API documentation      |
+| Gradle            | 8.x       | Build tool             |
+| Docker            | Latest    | Containerization       |
 
 ### Frontend
-| Công nghệ | Phiên bản | Mục đích |
-|-----------|-----------|----------|
-| React | 19.1.1 | UI framework |
-| Vite | 7.1.7 | Build tool & dev server |
-| React Router | 7.9.4 | Client-side routing |
-| Axios | 1.12.2 | HTTP client |
-| Chart.js | 4.5.1 | Biểu đồ real-time |
-| TailwindCSS | 3.4.18 | Utility-first CSS |
-| JWT Decode | 4.0.0 | Decode JWT tokens |
+
+| Công nghệ    | Phiên bản | Mục đích                |
+| ------------ | --------- | ----------------------- |
+| React        | 19.1.1    | UI framework            |
+| Vite         | 7.1.7     | Build tool & dev server |
+| React Router | 7.9.4     | Client-side routing     |
+| Axios        | 1.12.2    | HTTP client             |
+| Chart.js     | 4.5.1     | Biểu đồ real-time       |
+| TailwindCSS  | 3.4.18    | Utility-first CSS       |
+| JWT Decode   | 4.0.0     | Decode JWT tokens       |
 
 ### DevOps & Tools
+
 - **Docker Compose**: Orchestration
 - **Postman**: API testing
 - **Git**: Version control
@@ -239,6 +249,7 @@ Dashboard với biểu đồ thời gian thực
 ## 📦 Yêu cầu hệ thống
 
 ### Development
+
 - **JDK**: 17 hoặc cao hơn
 - **Node.js**: 18+ và npm
 - **Docker**: 20.10+ và Docker Compose
@@ -247,9 +258,10 @@ Dashboard với biểu đồ thời gian thực
 - **Disk**: 2GB trống
 
 ### Production
+
 - **Server**: Linux/Windows Server
 - **JRE**: 17+
-- **MariaDB/MySQL**: 10.6+
+- **PostgreSQL**: 16+
 - **Reverse Proxy**: Nginx/Apache (khuyến nghị)
 - **SSL Certificate**: Cho HTTPS
 
@@ -273,7 +285,8 @@ cd backend
 docker-compose up -d
 ```
 
-Database MariaDB sẽ chạy tại `localhost:3306` với:
+Database PostgreSQL sẽ chạy tại `localhost:5432` với:
+
 - Database: `water_quality_db`
 - User: `root`
 - Password: `1111`
@@ -284,8 +297,8 @@ Tạo file `backend/src/main/resources/application.properties`:
 
 ```properties
 # Database Configuration
-spring.datasource.url=jdbc:mariadb://localhost:3306/water_quality_db
-spring.datasource.username=root
+spring.datasource.url=jdbc:postgresql://localhost:5432/water_quality_db
+spring.datasource.username=postgres
 spring.datasource.password=1111
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
@@ -310,6 +323,7 @@ server.port=8080
 ```
 
 **⚠️ Lưu ý:**
+
 - Thay đổi `jwt.secret` thành chuỗi bí mật của bạn (tối thiểu 256 bits)
 - Với Gmail, cần tạo [App Password](https://myaccount.google.com/apppasswords) thay vì mật khẩu thông thường
 - Không commit file `application.properties` lên Git (đã có trong `.gitignore`)
@@ -317,11 +331,13 @@ server.port=8080
 #### Bước 3: Build và Run Backend
 
 **Sử dụng Gradle (Linux/Mac):**
+
 ```bash
 ./gradlew bootRun
 ```
 
 **Sử dụng Gradle (Windows):**
+
 ```bash
 gradlew.bat bootRun
 ```
@@ -331,6 +347,7 @@ Backend sẽ chạy tại: `http://localhost:8080`
 #### Bước 4: Kiểm tra Backend
 
 Truy cập Swagger UI để xem API documentation:
+
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
@@ -364,13 +381,14 @@ Frontend sẽ chạy tại: `http://localhost:5173`
 
 Backend tự động tạo dữ liệu mẫu khi khởi động lần đầu:
 
-| Loại | Username | Password | Email | Role |
-|------|----------|----------|-------|------|
-| Factory | Factory A | - | - | - |
-| Admin | adminA | admin | admin@factoryA.com | ADMIN |
+| Loại     | Username  | Password | Email                 | Role     |
+| -------- | --------- | -------- | --------------------- | -------- |
+| Factory  | Factory A | -        | -                     | -        |
+| Admin    | adminA    | admin    | admin@factoryA.com    | ADMIN    |
 | Employee | employeeA | employee | employee@factoryA.com | EMPLOYEE |
 
 **Device mẫu:**
+
 - Device 1 (Factory A)
 - API Key: Xem trong logs hoặc GET `/api/devices`
 
@@ -406,7 +424,7 @@ Water-Quality-Monitoring-System/
 │   │   │       └── application.properties
 │   │   └── test/                     # Unit & Integration Tests
 │   ├── build.gradle                  # Gradle dependencies
-│   ├── docker-compose.yml            # MariaDB container
+│   ├── docker-compose.yml            # PostgreSQL container
 │   └── README.md                     # Backend docs
 │
 ├── frontend/                         # React Frontend
@@ -434,6 +452,7 @@ Water-Quality-Monitoring-System/
 ## 📚 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:8080/api
 ```
@@ -441,6 +460,7 @@ http://localhost:8080/api
 ### 🔓 Authentication Endpoints
 
 #### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -463,12 +483,14 @@ Response:
 ### 👥 User Management (Admin only)
 
 #### Get All Users
+
 ```http
 GET /api/users
 Authorization: Bearer {token}
 ```
 
 #### Create User
+
 ```http
 POST /api/users
 Authorization: Bearer {token}
@@ -483,12 +505,14 @@ Content-Type: application/json
 ```
 
 #### Update User
+
 ```http
 PUT /api/users/{userId}
 Authorization: Bearer {token}
 ```
 
 #### Delete User
+
 ```http
 DELETE /api/users/{userId}
 Authorization: Bearer {token}
@@ -497,12 +521,14 @@ Authorization: Bearer {token}
 ### 🔧 Device Management (Admin only)
 
 #### Get All Devices
+
 ```http
 GET /api/devices
 Authorization: Bearer {token}
 ```
 
 #### Create Device
+
 ```http
 POST /api/devices
 Authorization: Bearer {token}
@@ -523,12 +549,14 @@ Response:
 ```
 
 #### Update Device
+
 ```http
 PUT /api/devices/{deviceId}
 Authorization: Bearer {token}
 ```
 
 #### Delete Device
+
 ```http
 DELETE /api/devices/{deviceId}
 Authorization: Bearer {token}
@@ -537,6 +565,7 @@ Authorization: Bearer {token}
 ### 📊 Sensor Data
 
 #### Submit Sensor Data (IoT Device)
+
 ```http
 POST /api/sensor-data
 X-API-KEY: {device-api-key}
@@ -551,12 +580,14 @@ Content-Type: application/json
 ```
 
 #### Get Latest Data
+
 ```http
 GET /api/sensor-data/latest?deviceId={deviceId}
 Authorization: Bearer {token}
 ```
 
 #### Get History
+
 ```http
 GET /api/sensor-data/history/{deviceId}?startDate={ISO8601}&endDate={ISO8601}&limit=100
 Authorization: Bearer {token}
@@ -565,6 +596,7 @@ Authorization: Bearer {token}
 ### 🎛️ Device Control
 
 #### Control Valve
+
 ```http
 POST /api/controls/devices/{deviceId}/valve
 Authorization: Bearer {token}
@@ -576,6 +608,7 @@ Content-Type: application/json
 ```
 
 #### Update Data Interval
+
 ```http
 PUT /api/controls/devices/{deviceId}/interval
 Authorization: Bearer {token}
@@ -587,6 +620,7 @@ Content-Type: application/json
 ```
 
 #### Toggle Data Collection
+
 ```http
 PUT /api/controls/devices/{deviceId}/collecting
 Authorization: Bearer {token}
@@ -598,7 +632,9 @@ Content-Type: application/json
 ```
 
 ### 📖 Swagger UI
+
 Truy cập full API documentation tại:
+
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
@@ -608,17 +644,20 @@ http://localhost:8080/swagger-ui/index.html
 ## 📖 Hướng dẫn sử dụng
 
 ### Đăng nhập
+
 1. Truy cập `http://localhost:5173/login`
 2. Nhập username và password (xem [Dữ liệu mẫu](#4%EF%B8%8F⃣-dữ-liệu-mẫu-seeded-data))
 3. Click "Đăng nhập"
 
 ### Dashboard (Admin & Employee)
+
 - Xem các chỉ số real-time (pH, nhiệt độ, độ đục, độ dẫn điện)
 - Theo dõi biểu đồ xu hướng
 - Nhận cảnh báo khi vượt ngưỡng
 - Điều khiển thiết bị (van nước, cài đặt)
 
 ### Quản lý thiết bị (Admin only)
+
 1. Vào menu "Thiết bị"
 2. Click "Thêm thiết bị mới"
 3. Nhập tên và vị trí
@@ -626,18 +665,21 @@ http://localhost:8080/swagger-ui/index.html
 5. Copy API Key cho thiết bị IoT
 
 ### Quản lý người dùng (Admin only)
+
 1. Vào menu "Người dùng"
 2. Click "Thêm người dùng"
 3. Nhập thông tin và chọn vai trò
 4. Gán thiết bị cho Employee (nếu cần)
 
 ### Xem lịch sử
+
 1. Vào menu "Lịch sử"
 2. Chọn thiết bị
 3. Chọn khoảng thời gian
 4. Xem biểu đồ và bảng dữ liệu
 
 ### Cấu hình thiết bị IoT (ESP32/ESP8266)
+
 ```cpp
 const char* apiUrl = "http://your-server:8080/api/sensor-data";
 const char* apiKey = "your-device-api-key";
@@ -716,6 +758,7 @@ cd backend
 ### Docker Deployment (Recommended)
 
 #### 1. Build Backend
+
 ```bash
 cd backend
 ./gradlew bootJar
@@ -723,6 +766,7 @@ docker build -t water-monitoring-backend .
 ```
 
 #### 2. Build Frontend
+
 ```bash
 cd frontend
 npm run build
@@ -730,18 +774,20 @@ docker build -t water-monitoring-frontend .
 ```
 
 #### 3. Deploy với Docker Compose
+
 ```yaml
 # docker-compose.prod.yml
-version: '3.8'
+version: "3.8"
 
 services:
   db:
-    image: mariadb:10.6
+    image: postgres:16
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: water_quality_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: water_quality_db
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     restart: always
 
   backend:
@@ -749,7 +795,7 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/water_quality_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/water_quality_db
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
     ports:
@@ -773,6 +819,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ### Manual Deployment
 
 #### Backend (JAR)
+
 ```bash
 # Build
 ./gradlew bootJar
@@ -782,6 +829,7 @@ java -jar build/libs/backend-0.0.1-SNAPSHOT.jar
 ```
 
 #### Frontend (Static Files)
+
 ```bash
 # Build
 npm run build
@@ -793,8 +841,9 @@ npm run build
 ### Environment Variables
 
 **Backend:**
+
 ```env
-SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:3306/water_quality_db
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/water_quality_db
 SPRING_DATASOURCE_USERNAME=root
 SPRING_DATASOURCE_PASSWORD=your_password
 JWT_SECRET=your_jwt_secret_minimum_256_bits
@@ -803,6 +852,7 @@ SPRING_MAIL_PASSWORD=your_app_password
 ```
 
 **Frontend:**
+
 ```env
 VITE_API_BASE_URL=https://your-api-domain.com
 ```
@@ -812,6 +862,7 @@ VITE_API_BASE_URL=https://your-api-domain.com
 ## 🗺️ Roadmap
 
 ### ✅ Đã hoàn thành
+
 - [x] Multi-tenant architecture
 - [x] JWT & API Key authentication
 - [x] Real-time dashboard
@@ -822,6 +873,7 @@ VITE_API_BASE_URL=https://your-api-domain.com
 - [x] Historical data viewing
 
 ### 🔄 Đang phát triển
+
 - [ ] WebSocket for real-time updates
 - [ ] Advanced data analytics
 - [ ] Mobile app (React Native)
@@ -829,6 +881,7 @@ VITE_API_BASE_URL=https://your-api-domain.com
 - [ ] Scheduled reports
 
 ### 📅 Kế hoạch tương lai
+
 - [ ] AI/ML predictions
 - [ ] Multi-language support (i18n)
 - [ ] Dark mode
@@ -853,11 +906,13 @@ Chúng tôi rất hoan nghênh mọi đóng góp! Để đóng góp:
 5. Tạo Pull Request
 
 ### Coding Standards
+
 - **Java**: Follow Google Java Style Guide
 - **JavaScript/React**: Follow Airbnb Style Guide
 - **Commit messages**: Follow Conventional Commits
 
 ### Development Guidelines
+
 - Viết unit tests cho features mới
 - Update documentation khi thay đổi API
 - Ensure code passes linting
